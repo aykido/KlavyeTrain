@@ -1,4 +1,5 @@
 dist/
+web-dist/
 release/
 node_modules/
 *.log

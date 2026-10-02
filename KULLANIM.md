@@ -1,6 +1,11 @@
 TÜRKÇE KLAVYE ANTRENÖRÜ
 Hazırlayan: Aykut BOZALAN
 
+TARAYICIDA DOĞRUDAN KULLANIM
+https://aykido.github.io/KlavyeTrain/ adresini açın.
+Kurulum gerekmez. Web sürümündeki kayıtlar bu web adresi ve tarayıcıya bağlıdır;
+indirilen uygulamanın geçmişiyle birleştirilmez.
+
 WINDOWS KURULUMU
 1. GitHub deposunun Releases bölümünden KlavyeTrain-v…-Windows-Portable.zip indirin.
 2. ZIP dosyasına sağ tıklayıp Tümünü Ayıkla seçeneğini kullanın.

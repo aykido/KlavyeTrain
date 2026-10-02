@@ -8,6 +8,13 @@ Halk Eğitimi Merkezi kursiyerleri için Türkçe F ve Q klavye eğitimi.
 
 ## İndir ve kur
 
+**Kurulum yapmadan kullanmak için [uygulamayı tarayıcıda açın](https://aykido.github.io/KlavyeTrain/).**
+Bu bağlantı doğrudan çalışma ekranını açar. Aşağıdaki Releases bağlantısı
+bilgisayara indirilecek kurulum paketi içindir.
+
+Web sürümü `main` dalına yapılan güncellemelerden sonra otomatik yayımlanır.
+Web sürümünün geçmişi indirilen uygulamadan ayrıdır; aynı tarayıcıda saklanır.
+
 [GitHub Releases](https://github.com/aykido/KlavyeTrain/releases/latest) bölümünden `KlavyeTrain-v1.0.0-Windows-Portable.zip`
 dosyasını indirin, ZIP'i çıkarın ve **Kur.cmd** dosyasını çalıştırın.
 Masaüstünde ve Başlat menüsünde kısayol oluşur. Yönetici yetkisi gerekmez.
