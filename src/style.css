@@ -41,7 +41,7 @@
 .guide-modifiers text{font:14px "Segoe UI",sans-serif;text-anchor:middle;fill:var(--muted)}
 .hand-palm{fill:var(--muted);fill-opacity:.10;stroke:var(--muted);stroke-opacity:.45;stroke-width:2}
 .hand-finger{fill:var(--finger);opacity:.25;transition:opacity 160ms ease}
-.hand-finger.is-active{opacity:1}
+.hand-finger.is-active{opacity:1;filter:drop-shadow(0 0 3px var(--finger))}.hand-finger.is-pressing{animation:finger-press 120ms ease-out}@keyframes finger-press{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 .hand-guide{display:block;width:100%;max-width:820px;margin:4px auto 16px}
 .hand-label{font:600 13px "Segoe UI",sans-serif;letter-spacing:2px;text-anchor:middle;fill:var(--muted)}
 .guide-message{padding:16px 20px;min-height:60px;background:var(--accent-soft);border-radius:10px;color:var(--ink);font-size:1rem}
@@ -55,4 +55,4 @@
 .contrast .key-face{stroke-opacity:1;stroke-width:2}.contrast .hand-finger{fill:var(--finger);opacity:.25;transition:opacity 160ms ease}.contrast .hand-palm{stroke-opacity:1}
 @media(max-width:700px){.guide-toolbar{align-items:start;flex-direction:column}.finger-legend{grid-template-columns:repeat(2,1fr)}.guide-notes{grid-template-columns:1fr}.guide-home-row{flex-direction:column;gap:6px}.guide-toolbar .checkbox{font-size:.88rem}nav{gap:2px}nav button{padding:8px;font-size:.8rem}}
 
-@media(prefers-reduced-motion:reduce){.hand-finger{transition:none}}
+@media(prefers-reduced-motion:reduce){.hand-finger,.hand-finger.is-pressing{transition:none;animation:none}}

@@ -1,4 +1,4 @@
-## v1.2.2 — El ve parmak rehberi
+## v1.2.3 — El ve parmak rehberi
 
 **Hazırlayan: Aykut BOZALAN**
 
@@ -8,4 +8,4 @@ El rehberi çalışmalarda da açılıp kapatılabilir. Akıcı metin modu, yard
 
 **Web:** [Uygulamayı aç](https://aykido.github.io/KlavyeTrain/)
 
-**Windows:** `KlavyeTrain-v1.2.2-Windows-Portable.zip` dosyasını indirin, klasöre çıkarın ve `Kur.cmd` dosyasını çalıştırın. Yönetici yetkisi gerekmez. Kurulumsuz kullanım için `index.html` dosyasını tarayıcıda açın.
+**Windows:** `KlavyeTrain-v1.2.3-Windows-Portable.zip` dosyasını indirin, klasöre çıkarın ve `Kur.cmd` dosyasını çalıştırın. Yönetici yetkisi gerekmez. Kurulumsuz kullanım için `index.html` dosyasını tarayıcıda açın.

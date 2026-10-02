@@ -1,5 +1,10 @@
 # Sürüm geçmişi
 
+## 1.2.3 — 2026-10-02
+
+- El paneli ayrıntılı kapsül el spec’ine uyarlandı: 35° başparmak, el/avuç kimlikleri, 120 ms basma animasyonu ve azaltılmış hareket desteği.
+- El bileşeni yalnızca parmak kimlikleri alır; Q/F eşleme mantığı korunur.
+
 ## 1.2.2 — 2026-10-02
 
 - Eller klavyenin altına, ayrı SVG içine alındı.

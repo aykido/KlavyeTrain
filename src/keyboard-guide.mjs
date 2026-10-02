@@ -31,20 +31,20 @@ export function guideSelection(layout, value) {
 }
 
 const handSpecs = [
-  {suffix:'5', name:'serce', x:150, ratio:.75},
-  {suffix:'4', name:'yuzuk', x:195, ratio:.92},
-  {suffix:'3', name:'orta', x:240, ratio:1},
-  {suffix:'2', name:'isaret', x:285, ratio:.9},
-  {suffix:'1', name:'bas', x:322, ratio:.7}
+  {suffix:'5', name:'serce', x:100, ratio:.75},
+  {suffix:'4', name:'yuzuk', x:145, ratio:.92},
+  {suffix:'3', name:'orta', x:190, ratio:1},
+  {suffix:'2', name:'isaret', x:235, ratio:.9},
+  {suffix:'1', name:'bas', x:260, ratio:.7}
 ];
 function handSvg(side) {
   const fingers = handSpecs.map(spec => {
     const id = side + spec.suffix, length = 120 * spec.ratio;
     const thumb = spec.suffix === '1';
-    const height = thumb ? 32 : length, width = thumb ? length : 32;
-    return `<g id="finger-${side === 'L' ? 'sol' : 'sag'}-${spec.name}" data-finger="${id}" class="hand-finger finger-${id}"><rect x="${spec.x}" y="${thumb ? 165 : 155-length}" width="${width}" height="${height}" rx="${height/2}" ry="16"/></g>`;
+    const height = length, width = 40;
+    return `<g id="finger-${side === 'L' ? 'sol' : 'sag'}-${spec.name}" data-finger="${id}" class="hand-finger finger-${id}"><rect x="${spec.x}" y="${thumb ? 115 : 145-length}" width="${width}" height="${height}" rx="${width/2}"${thumb ? ' transform="rotate(35 280 199)"' : ''}/></g>`;
   }).join('');
-  return `<g class="hand" ${side === 'R' ? 'transform="translate(900 0) scale(-1 1)"' : ''}><rect class="hand-palm" x="140" y="140" width="190" height="85" rx="32"/>${fingers}</g>`;
+  return `<g id="el-${side === 'L' ? 'sol' : 'sag'}" class="hand" ${side === 'R' ? 'transform="translate(800 0) scale(-1 1)"' : ''}><rect id="palm-${side === 'L' ? 'sol' : 'sag'}" class="hand-palm" x="90" y="130" width="190" height="90" rx="24"/>${fingers}</g>`;
 }
 
 export function keyboardGraphic(layout, {showHands = true, interactive = false} = {}) {
@@ -52,7 +52,20 @@ export function keyboardGraphic(layout, {showHands = true, interactive = false} 
   const keyFaces = keys.map(key => `<g class="guide-key finger-${key.fingerId}${key.home ? ' is-home' : ''}" data-key-code="${key.code}"${interactive ? ` role="button" tabindex="${key.code === 'KeyF' ? 0 : -1}" aria-label="${guideEscape(keyLabel(key))} — ${key.finger}${key.home ? ', temel sıra' : ''}"` : ''}><title>${guideEscape(keyLabel(key))} · ${key.finger}</title>${key.shape ? `<path class="key-face" d="${key.shape}"/>` : `<rect class="key-face" x="${key.x+3}" y="${key.y+3}" width="${key.width-6}" height="${key.height-6}" rx="7"/>`}${key.home ? `<path class="home-mark" d="M${key.x+23} ${key.y+45} h14"/>` : ''}</g>`).join('');
   // The keyboard and abstract hand guide are separate SVGs.
   const labels = keys.map(key => `<text class="guide-key-label${key.label ? ' special-label' : ''}" x="${key.x+key.width/2}" y="${key.y+31}">${guideEscape(keyLabel(key))}</text>`).join('');
-  return `<div class="guide-scroll"><svg class="keyboard-guide" viewBox="-12 0 924 340" xmlns="http://www.w3.org/2000/svg" role="${interactive ? 'group' : 'img'}" aria-label="${layout.name} klavye ve parmak yerleşimi"><rect class="keyboard-frame" x="-6" y="12" width="912" height="316" rx="16"/><text class="guide-layout-label" x="28" y="56">${layout.name.endsWith('Q') ? 'Q' : 'F'}</text>${keyFaces}<g class="guide-modifiers" aria-hidden="true"><text x="42" y="296">Ctrl</text><text x="108" y="296">⊞</text><text x="181" y="296">Alt</text><text x="647" y="296">AltGr</text><text x="742" y="296">☰</text><text x="849" y="296">Ctrl</text></g><g class="key-labels" aria-hidden="true">${labels}</g></svg></div><svg class="hands-layer hand-guide" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sol ve sağ el parmak rehberi"${showHands ? '' : ' style="display:none"'}>${handSvg('L')}${handSvg('R')}<text class="hand-label" x="240" y="250">SOL EL</text><text class="hand-label" x="660" y="250">SAĞ EL</text></svg>`;
+  return `<div class="guide-scroll"><svg class="keyboard-guide" viewBox="-12 0 924 340" xmlns="http://www.w3.org/2000/svg" role="${interactive ? 'group' : 'img'}" aria-label="${layout.name} klavye ve parmak yerleşimi"><rect class="keyboard-frame" x="-6" y="12" width="912" height="316" rx="16"/><text class="guide-layout-label" x="28" y="56">${layout.name.endsWith('Q') ? 'Q' : 'F'}</text>${keyFaces}<g class="guide-modifiers" aria-hidden="true"><text x="42" y="296">Ctrl</text><text x="108" y="296">⊞</text><text x="181" y="296">Alt</text><text x="647" y="296">AltGr</text><text x="742" y="296">☰</text><text x="849" y="296">Ctrl</text></g><g class="key-labels" aria-hidden="true">${labels}</g></svg></div><svg id="eller" class="hands-layer hand-guide" viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sol ve sağ el parmak rehberi"${showHands ? '' : ' style="display:none"'}>${handSvg('L')}${handSvg('R')}<text class="hand-label" x="185" y="250">SOL EL</text><text class="hand-label" x="615" y="250">SAĞ EL</text></svg>`;
+}
+
+// The hand component receives finger IDs only; it knows nothing about Q/F keys.
+export function updateHandPanel(root, fingerIds = []) {
+  for (const group of root.querySelectorAll('.hand-finger')) {
+    const active = fingerIds.includes(group.id.replace('finger-', ''));
+    group.classList.toggle('is-active', active);
+    group.classList.remove('is-pressing');
+    if (active) {
+      void group.getBoundingClientRect();
+      group.classList.add('is-pressing');
+    }
+  }
 }
 
 export function updateKeyboardGraphic(root, layout, value = '') {
@@ -62,9 +75,10 @@ export function updateKeyboardGraphic(root, layout, value = '') {
     element.classList.toggle('is-active', selected);
     if (element.hasAttribute('tabindex')) element.setAttribute('tabindex', element.dataset.keyCode === (selection.key?.code || 'KeyF') ? '0' : '-1');
   }
-  for (const group of root.querySelectorAll('[data-finger]')) {
-    group.classList.toggle('is-active', [selection.key, selection.shift].some(key => key?.fingerId === group.dataset.finger));
-  }
+  updateHandPanel(root, [selection.key, selection.shift].filter(Boolean).map(key => {
+    const spec = handSpecs.find(spec => spec.suffix === key.fingerId.slice(1));
+    return (key.fingerId.startsWith('L') ? 'sol-' : 'sag-') + spec.name;
+  }));
   const message = root.querySelector('[data-guide-message]');
   if (message) message.textContent = selection.message;
   for (const item of root.querySelectorAll('[data-legend-finger]')) item.classList.toggle('is-active', [selection.key,selection.shift].some(key=>key?.fingerId === item.dataset.legendFinger));

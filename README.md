@@ -1,6 +1,6 @@
 # Türkçe Klavye Antrenörü
 
-**Hazırlayan: Aykut BOZALAN · Sürüm 1.2.2**
+**Hazırlayan: Aykut BOZALAN · Sürüm 1.2.3**
 
 Halk Eğitimi Merkezi kursiyerleri için Türkçe F ve Q klavye eğitimi.
 Öncelik doğruluk, klavye hâkimiyeti ve istikrarlı ritimdir. Hedef yaklaşık
@@ -15,7 +15,7 @@ bilgisayara indirilecek kurulum paketi içindir.
 Web sürümü `main` dalına yapılan güncellemelerden sonra otomatik yayımlanır.
 Web sürümünün geçmişi indirilen uygulamadan ayrıdır; aynı tarayıcıda saklanır.
 
-[GitHub Releases](https://github.com/aykido/KlavyeTrain/releases/latest) bölümünden `KlavyeTrain-v1.2.2-Windows-Portable.zip`
+[GitHub Releases](https://github.com/aykido/KlavyeTrain/releases/latest) bölümünden `KlavyeTrain-v1.2.3-Windows-Portable.zip`
 dosyasını indirin, ZIP'i çıkarın ve **Kur.cmd** dosyasını çalıştırın.
 Masaüstünde ve Başlat menüsünde kısayol oluşur. Yönetici yetkisi gerekmez.
 Kurulum imzasız bir PowerShell betiğidir; `.exe` yükleyici değildir.
