@@ -1,5 +1,6 @@
 import { lowerTR, equalTR, createSession, recordKey, submitWords, metrics, trainingLevel, feedback, chooseTarget, mergeKeyStats, keyboardKeys } from './core.mjs';
 import { StorageManager } from './storage.mjs';
+import { analyzeFlow, recordFlowEdit } from './flow.mjs';
 
 const data = JSON.parse(document.querySelector('#app-data').textContent);
 const $ = selector => document.querySelector(selector);
@@ -13,6 +14,7 @@ const store = new StorageManager(local, notice);
 let settings = store.settings(), history = store.history(), active = null, lastResult = null, currentMode = 'WORDS';
 let ticker = null, hintTimer = null, voices = [];
 const modes = {
+  FLOW: ['Akıcı metin çalışması', 'Yan yana kelimeleri oku, boşlukla ilerle. Bir editörde yazar gibi kesintisiz çalış.', '≋', 'OKU & YAZ'],
   EXPLORE: ['Klavyeyi tanı', 'Tuşların yerini ve hangi parmağını kullanacağını keşfet.', 'F Q', 'İLK ADIM'],
   FIND: ['Tuş bulma', 'Harfleri klavyende bul, yerlerini adım adım öğren.', 'Aa', 'KEŞFET'],
   WORDS: ['Kelime çalış', 'Kısa kelimelerden cümlelere, kendi ritminde ilerle.', 'ab', 'ALIŞTIRMA'],
@@ -39,7 +41,7 @@ function navigate(page) {
     if (!confirm('Çalışmayı bitirip sonucunu görmek ister misin?')) return;
     finish(); return;
   }
-  stopTimers(); document.body.classList.remove('exercise-active');
+  stopTimers(); document.body.classList.remove('exercise-active', 'flow-active');
   if (!settings.keyboardLayout) return welcome();
   ({ home, history: showHistory, settings: showSettings }[page] || home)();
 }
@@ -51,7 +53,7 @@ function home() {
 }
 function setup(mode) {
   currentMode = mode;
-  mount(`<button class="back" data-nav="home">← Çalışmalara dön</button><div class="eyebrow">${modes[mode][3]}</div><h1>${modes[mode][0]}</h1><p style="margin-top:16px">${modes[mode][1]}</p><form id="setup-form" class="panel"><div class="form-grid">${isLetterMode(mode) ? '<p class="full-width">20 doğru harfle tamamlanan kısa bir çalışma. Harfleri küçük yazarak başlayabilirsin.</p>' : `<label class="field">Çalışma seviyesi<select id="level">${levelOptions}</select></label><label class="field">Çalışma süresi<select id="duration"><option value="60">1 dakika</option><option value="180" selected>3 dakika</option><option value="300">5 dakika</option><option value="600">10 dakika</option><option value="custom">Özel süre</option></select></label><label class="field" id="custom-field" hidden>Özel süre (dakika)<input id="custom-duration" type="number" min="1" max="60" value="5"></label>`}${mode === 'LESSON' ? '<label class="field">Hedef doğruluk (%)<input id="accuracy-goal" type="number" min="50" max="100" value="95" required></label><label class="field">Hedef doğru kelime / dk<input id="speed-goal" type="number" min="1" max="150" value="30" required></label>' : ''}${mode === 'FREE' ? '<label class="field full-width">Yazmak istediğin metin<textarea id="free-text" maxlength="1200" required placeholder="Çalışmak istediğin cümleleri buraya yaz..."></textarea><small>En fazla 1200 karakter. Satır sonları boşluğa dönüştürülür.</small></label>' : ''}</div><div class="tip">${mode === 'DICTATION' ? 'Bu çalışma cihazında Türkçe ses gerektirir. Kelimeyi dinledikten sonra yaz ve Enter tuşuna bas.' : 'Süre ilk tuşla başlar. Kelime ve cümleleri Enter ile tamamla. Büyük harf ve noktalama işaretlerine dikkat et.'}</div><div class="actions"><button class="primary" type="submit">Çalışmayı başlat →</button></div></form>`);
+  mount(`<button class="back" data-nav="home">← Çalışmalara dön</button><div class="eyebrow">${modes[mode][3]}</div><h1>${modes[mode][0]}</h1><p style="margin-top:16px">${modes[mode][1]}</p><form id="setup-form" class="panel"><div class="form-grid">${isLetterMode(mode) ? '<p class="full-width">20 doğru harfle tamamlanan kısa bir çalışma. Harfleri küçük yazarak başlayabilirsin.</p>' : `<label class="field">Çalışma seviyesi<select id="level">${levelOptions}</select></label><label class="field">Çalışma süresi<select id="duration"><option value="60">1 dakika</option><option value="180" selected>3 dakika</option><option value="300">5 dakika</option><option value="600">10 dakika</option><option value="custom">Özel süre</option></select></label><label class="field" id="custom-field" hidden>Özel süre (dakika)<input id="custom-duration" type="number" min="1" max="60" value="5"></label>`}${mode === 'LESSON' ? '<label class="field">Hedef doğruluk (%)<input id="accuracy-goal" type="number" min="50" max="100" value="95" required></label><label class="field">Hedef doğru kelime / dk<input id="speed-goal" type="number" min="1" max="150" value="30" required></label>' : ''}${mode === 'FREE' ? '<label class="field full-width">Yazmak istediğin metin<textarea id="free-text" maxlength="1200" required placeholder="Çalışmak istediğin cümleleri buraya yaz..."></textarea><small>En fazla 1200 karakter. Satır sonları boşluğa dönüştürülür.</small></label>' : ''}</div><div class="tip">${mode === 'FLOW' ? 'Kelimeleri boşlukla ayırarak yaz; Enter ile onay gerekmez. Metin süre bitene kadar uzar. Hatalı kelimelerde de ilerleyebilir, imleci geri götürüp düzeltebilirsin. Süre ilk tuşla başlar.' : mode === 'DICTATION' ? 'Bu çalışma cihazında Türkçe ses gerektirir. Kelimeyi dinledikten sonra yaz ve Enter tuşuna bas.' : 'Süre ilk tuşla başlar. Kelime ve cümleleri Enter ile tamamla. Büyük harf ve noktalama işaretlerine dikkat et.'}</div><div class="actions"><button class="primary" type="submit">Çalışmayı başlat →</button></div></form>`);
   if (mode === 'DICTATION') { $('#level option[value="5"]').remove(); }
   $('#duration')?.addEventListener('change', event => { $('#custom-field').hidden = event.target.value !== 'custom'; });
   $('#setup-form').addEventListener('submit', event => {
@@ -88,15 +90,20 @@ function start(mode, options) {
     elapsed: 0, runningSince: null, paused: false, hint: false };
   document.body.classList.add('exercise-active');
   mount(`<div class="section-head"><div><div class="eyebrow">${data.keyboards[settings.keyboardLayout].name} · ÖNCE DOĞRULUK</div><h2>${modes[mode][0]}</h2></div><button id="finish">Çalışmayı bitir</button></div><div class="metrics"><div class="metric"><strong id="time">0:00</strong><span>${options.duration ? 'kalan süre' : 'geçen süre'}</span></div><div class="metric"><strong id="word-count">0</strong><span>${isLetterMode(mode) ? 'tamamlanan harf' : 'doğru kelime'}</span></div><div class="metric"><strong id="accuracy">%100</strong><span>doğruluk</span></div><div class="metric"><strong id="speed">0</strong><span>doğru kelime / dk</span></div></div><section class="panel exercise-panel"><p>${mode === 'DICTATION' ? 'Dinle, yaz, Enter ile tamamla.' : isLetterMode(mode) ? 'Gösterilen harfi klavyende bul.' : 'Metni yaz, Enter ile tamamla.'}</p><div class="target" id="target" aria-label="Yazılacak metin"></div><label for="typing" class="muted">Yazma alanı</label><input class="typing-input" id="typing" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="typing-feedback" placeholder="Hazır olduğunda başla..."><div id="typing-feedback" class="feedback" role="status">Süre ilk tuşa bastığında başlayacak.</div><div class="actions" style="justify-content:center">${mode === 'DICTATION' ? '<button id="listen">♪ Tekrar dinle</button>' : ''}<button id="pause">Duraklat</button></div><div class="progress" aria-hidden="true"><span id="progress" style="width:0"></span></div></section><div id="keyboard-area"></div><p id="keyboard-help" class="keyboard-help"></p>`);
+  if (mode === 'FLOW') prepareFlow();
   $('#finish').onclick = finish; $('#pause').onclick = pause; $('#listen')?.addEventListener('click', speak);
   $('#typing').addEventListener('keydown', event => {
-    if (event.key === 'Enter') { event.preventDefault(); if (!event.repeat) submit(); }
+    if (event.key === 'Enter' && active?.mode !== 'FLOW') { event.preventDefault(); if (!event.repeat) submit(); }
     if (event.key === 'Escape') { event.preventDefault(); pause(); }
   });
   $('#typing').addEventListener('paste', event => { event.preventDefault(); $('#typing-feedback').textContent = 'Bu alanda metni tuşlayarak yazalım.'; });
   $('#typing').addEventListener('drop', event => event.preventDefault());
   $('#typing').addEventListener('beforeinput', event => {
     if (active?.paused) return event.preventDefault();
+    if (active?.mode === 'FLOW') {
+      if (!['insertText','insertLineBreak','insertParagraph','insertCompositionText','deleteContentBackward','deleteContentForward','deleteWordBackward','deleteWordForward','deleteByCut','historyUndo','historyRedo'].includes(event.inputType)) event.preventDefault();
+      return;
+    }
     if (!['insertText','deleteContentBackward','insertCompositionText'].includes(event.inputType)) { event.preventDefault(); return; }
     const input = event.target;
     if (input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length) {
@@ -106,6 +113,75 @@ function start(mode, options) {
   });
   $('#typing').addEventListener('input', handleInput);
   nextTarget(); ticker = setInterval(tick, 200); tick(); $('#typing').focus();
+}
+function prepareFlow() {
+  active.flowTargets = [];
+  document.body.classList.add('flow-active');
+  $('.exercise-panel > p').textContent = 'Oku, yaz, boşlukla devam et. Metin süre bitene kadar uzar.';
+  $('#target').className = 'target flow-reading';
+  $('#target').setAttribute('role', 'region');
+  $('#target').setAttribute('tabindex', '0');
+  $('#target').setAttribute('aria-label', 'Okunacak metin; ilerledikçe otomatik kayar');
+  $('#target').insertAdjacentHTML('beforebegin', '<div class="flow-heading"><h3>Okunacak metin</h3><span class="badge">Boşlukla ilerle</span></div>');
+  $('label[for="typing"]').className = 'flow-input-label';
+  $('label[for="typing"]').textContent = 'Yazma alanın';
+  $('#typing').outerHTML = '<textarea class="typing-input flow-editor" id="typing" rows="5" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-describedby="typing-feedback flow-instructions" placeholder="Yukarıdaki kelimeleri buraya yaz. Her kelimeden sonra boşluk bırak..."></textarea>';
+  $('#typing').insertAdjacentHTML('afterend', '<p id="flow-instructions" class="muted flow-instructions">Boşluk: sonraki kelime · Backspace: düzelt · İmleçle önceki kelimelere dönebilirsin.</p>');
+  const details = document.createElement('details');
+  details.className = 'flow-keyboard'; details.innerHTML = '<summary>Klavye yardımını göster</summary>';
+  $('#keyboard-area').before(details); details.append($('#keyboard-area'), $('#keyboard-help'));
+  for (const event of ['click', 'keyup', 'select']) $('#typing').addEventListener(event, () => {
+    if (active?.mode === 'FLOW' && !active.paused) { renderFlow(); renderKeyboard(); }
+  });
+}
+function extendFlow(text = active.typed) {
+  const needed = (text.match(/\S+/gu)?.length || 0) + data.config.flow.wordsAhead;
+  const stats = mergeKeyStats([{ keyStats: active.stats }, active.session]);
+  while (active.flowTargets.length < needed) {
+    const phrase = chooseTarget(active.pool, stats, active.recent);
+    active.flowTargets.push(...phrase.split(/\s+/u));
+    active.recent.push(phrase); active.recent = active.recent.slice(-5);
+  }
+}
+function flowCaret() {
+  return analyzeFlow(active.flowTargets, active.typed.slice(0, $('#typing').selectionStart ?? active.typed.length));
+}
+function renderFlow() {
+  const target = $('#target');
+  if (active.paused) { target.textContent = 'Kısa bir mola. Devam ettiğinde aynı yerden sürdüreceksin.'; return; }
+  const caret = flowCaret(), state = analyzeFlow(active.flowTargets, active.typed);
+  const config = data.config.flow;
+  const first = Math.max(0, Math.floor(caret.wordIndex / config.chunkSize) * config.chunkSize - config.wordsBehind);
+  const last = Math.min(active.flowTargets.length, first + config.wordsAhead);
+  target.innerHTML = active.flowTargets.slice(first, last).map((word, offset) => {
+    const index = first + offset, written = state.words[index];
+    if (index === caret.wordIndex) {
+      const typed = [...(written?.text || '')];
+      const letters = [...word].map((char, i) => `<span class="${i < typed.length ? equalTR(char, typed[i]) ? 'correct' : 'incorrect' : ''}"${i === caret.offset ? ' id="flow-caret"' : ''}>${escapeHTML(char)}</span>`).join('');
+      return `<span class="flow-word flow-active-word" data-flow-word="${index}" aria-current="true">${letters}${caret.offset >= [...word].length ? '<span id="flow-caret" class="flow-end-caret"></span>' : ''}</span>`;
+    }
+    return `<span class="flow-word ${written?.complete ? written.correct ? 'flow-done' : 'flow-error' : ''}" data-flow-word="${index}">${escapeHTML(word)}</span>`;
+  }).join(' ');
+  const marker = $('#flow-caret');
+  if (marker && target.clientHeight) {
+    const top = marker.offsetTop;
+    if (top < target.scrollTop + 20 || top + marker.offsetHeight > target.scrollTop + target.clientHeight - 20) {
+      target.scrollTop = Math.max(0, top - target.clientHeight / 3);
+    }
+  }
+}
+function handleFlowInput(event) {
+  const input = event.target, value = input.value.normalize('NFC');
+  if (value === active.typed) return;
+  beginClock(); extendFlow(value);
+  const state = recordFlowEdit(active.session, active.flowTargets, active.typed, value, event.inputType);
+  active.typed = value;
+  active.completed = state.correctWords + state.incorrectWords;
+  active.hint = settings.help === 3 && !state.correct;
+  $('#typing-feedback').textContent = state.correct
+    ? 'Kendi ritminde devam et. Kelimeler arasında boşluk bırak.'
+    : 'Bir tuş farklı oldu. İstersen düzelt; boşlukla sonraki kelimeye geçebilirsin.';
+  renderFlow(); renderKeyboard(); scheduleHint(); tick();
 }
 function elapsed() { return active ? active.elapsed + (active.runningSince === null ? 0 : (performance.now() - active.runningSince) / 1000) : 0; }
 function beginClock() { if (active.runningSince === null && !active.paused) active.runningSince = performance.now(); }
@@ -121,6 +197,7 @@ function tick() {
 }
 function nextTarget() {
   if (!active) return;
+  if (active.mode === 'FLOW') { extendFlow(); renderTarget(); renderKeyboard(); scheduleHint(); return; }
   const stats = mergeKeyStats([{ keyStats: active.stats }, active.session]);
   active.target = chooseTarget(active.pool, stats, active.recent, Math.random, active.mode === 'WEAK' ? 6 : 2);
   active.recent.push(active.target); active.recent = active.recent.slice(-5);
@@ -133,6 +210,7 @@ function scheduleHint() {
 }
 function renderTarget() {
   if (!active) return;
+  if (active.mode === 'FLOW') return renderFlow();
   if (active.paused) { $('#target').textContent = 'Kısa bir mola'; return; }
   if (active.mode === 'DICTATION') { $('#target').textContent = '♪ Dinle ve yaz'; return; }
   const typed = [...active.typed];
@@ -142,7 +220,7 @@ function renderKeyboard() {
   if (!active) return;
   const area = $('#keyboard-area'), help = $('#keyboard-help');
   if (settings.help === 4 || active.mode === 'DICTATION' || active.paused) { area.innerHTML = ''; help.textContent = ''; return; }
-  const expected = [...active.target][[...active.typed].length] || '';
+  const expected = active.mode === 'FLOW' ? flowCaret().next : [...active.target][[...active.typed].length] || '';
   const show = settings.help === 1 || active.hint;
   const rows = keyboardKeys(data.keyboards[settings.keyboardLayout]);
   const key = rows.flat().find(key => key.key === expected || key.shifted === expected);
@@ -154,6 +232,7 @@ function handleInput(event) {
   if (!active || active.paused) return;
   if (event.isComposing) return;
   if (active.options.duration && elapsed() >= active.options.duration) { finish(); return; }
+  if (active.mode === 'FLOW') return handleFlowInput(event);
   const input = event.target, previous = [...active.typed], value = [...input.value.normalize('NFC')];
   beginClock();
   let common = 0; while (common < previous.length && common < value.length && previous[common] === value[common]) common++;
@@ -208,13 +287,17 @@ function finish() {
   if (!active) return;
   stopTimers();
   // Count a final partial submission once, including missing words, when time runs out.
-  if (!isLetterMode(active.mode) && active.typed) submitWords(active.session, active.target, active.typed);
+  if (active.mode === 'FLOW') {
+    const state = analyzeFlow(active.flowTargets, active.typed, true);
+    active.session.correctWords = state.correctWords; active.session.incorrectWords = state.incorrectWords;
+    active.completed = state.correctWords + state.incorrectWords;
+  } else if (!isLetterMode(active.mode) && active.typed) submitWords(active.session, active.target, active.typed);
   const duration = active.options.duration ? Math.min(elapsed(), active.options.duration) : elapsed();
   const result = metrics(active.session, duration);
   result.targetAccuracy = active.options.targetAccuracy; result.targetWpm = active.options.targetWpm;
   result.completedTargets = active.completed;
   if (result.totalCharacters) { history.push(result); history = history.slice(-data.config.historyLimit); store.saveHistory(history); }
-  lastResult = result; active = null; document.body.classList.remove('exercise-active'); showResult(result);
+  lastResult = result; active = null; document.body.classList.remove('exercise-active', 'flow-active'); showResult(result);
 }
 function showResult(result) {
   const letterMode = isLetterMode(result.exerciseType);

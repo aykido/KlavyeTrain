@@ -3,6 +3,7 @@
   "hintDelayMs": 2500,
   "targetWpm": 30,
   "targetAccuracy": 95,
+  "flow": { "wordsAhead": 100, "chunkSize": 40, "wordsBehind": 20 },
   "levels": [
     { "name": "Hedef", "wpm": 30, "accuracy": 95 },
     { "name": "Akıcılık", "wpm": 25, "accuracy": 95 },

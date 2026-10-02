@@ -9,6 +9,7 @@ testleri ve derleme içindir. DOM testleri jsdom kullanır. Derleme, modülleri 
 birleştirir; böylece dosyadan açılışta fetch/CORS sorunu oluşmaz.
 
 - `src/core.mjs`: Türkçe karşılaştırma, istatistik, adaptif seçim, oturum modeli.
+- `src/flow.mjs`: akıcı metinde kelime sınırlarına göre eşleştirme, editör değişiklikleri ve anlık skor.
 - `src/storage.mjs`: sürümlü yerel kayıtlar ve bozuk veri toleransı.
 - `src/app.mjs`, `src/index.html`, `src/style.css`: ekranlar ve etkileşim.
 - `data/*.json`: kelimeler, cümleler, F/Q haritaları, eğitim hedefleri.

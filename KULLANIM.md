@@ -32,6 +32,17 @@ Backspace ile sondan düzeltin. Süre ilk girişte başlar.
 Sekme değiştirildiğinde çalışma duraklar; Devam et düğmesiyle sürdürün.
 Ders modunda süre, seviye ve hedefleri öğretmeninizin verdiği şekilde seçin.
 
+AKICI METİN ÇALIŞMASI
+Ana ekrandaki Akıcı metin çalışması kartını seçin. Seviye ve süreyi belirleyin.
+Üstteki uzun metni okuyup alttaki geniş yazma alanına yazın. Kelimeleri boşlukla
+ayırın; Enter ile onay gerekmez. İsterseniz Enter ile yeni satır açabilirsiniz.
+Hatalı yazsanız da sıradaki kelimeye geçebilirsiniz. İmleci veya Backspace tuşunu
+kullanarak önceki kelimeleri düzeltebilirsiniz. Okuma alanı etkin kelimeyi izler;
+metin süre bitene kadar yeni kelimelerle uzar. Klavye yardımı katlanabilir alandadır.
+Doğru kelime sayısı boşluk/satır sonuyla güncellenir; süre bittiğinde son yazılan
+kelime de değerlendirilir. Henüz başlanmamış kelimeler hata sayılmaz. Düzeltilen
+kelimeler güncel kelime sayısına yansır; ilk vuruş doğruluğu eski hataları korur.
+
 YARDIM VE DİKTE
 Ayarlar bölümünde dört yardım seviyesi, tema, büyük yazı ve yüksek kontrast var.
 Sesli dikte için cihazda Türkçe konuşma sesi bulunmalıdır. Ses sağlayıcısına

@@ -11,7 +11,7 @@ for (const level of [1,2,3,4]) if (!data.words[level]?.length || data.words[leve
 for (const layout of Object.values(data.keyboards)) {
   if (layout.rows.length !== layout.shiftRows.length || layout.rows.some((row,i)=>[...row].length !== [...layout.shiftRows[i]].length)) throw new Error('Klavye haritası hatalı');
 }
-const js = (await Promise.all(['core','storage','app'].map(name=>read(`src/${name}.mjs`))))
+const js = (await Promise.all(['core','storage','flow','app'].map(name=>read(`src/${name}.mjs`))))
   .map(source=>source.replace(/^import .+;\r?\n/gm,'').replace(/^export /gm,'')).join('\n');
 // Inline JSON must never be able to terminate its script element.
 const json = JSON.stringify(data).replace(/</g,'\\u003c');

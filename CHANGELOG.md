@@ -1,5 +1,13 @@
 # Sürüm geçmişi
 
+## 1.1.0 — 2026-10-02
+
+- Yeni Akıcı metin çalışması: yan yana kelimeler, boşlukla ilerleme ve geniş yazı editörü.
+- Süre boyunca uzayan metin, etkin kelime vurgusu ve otomatik okuma alanı kaydırma.
+- Kelime hatasından sonra hizayı koruyan ölçüm, önceki metni düzenleme ve geri silme desteği.
+- Mevcut tek kelimeli çalışmalar, dikte ve geçmiş kayıtları korunur.
+- GitHub Pages üzerinden doğrudan web kullanımı.
+
 ## 1.0.0 — 2026-10-02
 
 - Türkçe F/Q eğitim ekranları ve dört seviyeli klavye yardımı.

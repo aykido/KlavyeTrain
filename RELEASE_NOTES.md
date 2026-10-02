@@ -1,14 +1,18 @@
-Türkçe Klavye Antrenörü'nün ilk sürümü.
+## v1.1.0 — Akıcı metin çalışması
 
 **Hazırlayan: Aykut BOZALAN**
 
-Türkçe F/Q desteği, adım adım çalışmalar, adaptif kelimeler, Türkçe sesli dikte,
-kişisel gelişim takibi ve erişilebilir görünüm ayarları içerir.
+Yeni modda yan yana görünen kelimeleri geniş, çok satırlı bir editörde yazın.
+Boşlukla sıradaki kelimeye geçilir; Enter ile onay gerekmez. Okuma alanı etkin
+kelimeye kayar ve metin süre dolana kadar uzar. Hatalı kelimede takılmadan
+ilerleyebilir, imleçle önceki kelimelere dönüp düzeltme yapabilirsiniz.
 
-**Kurulum:** Aşağıdaki `KlavyeTrain-v1.0.0-Windows-Portable.zip` dosyasını indirin,
-bir klasöre çıkarın, `Kur.cmd` dosyasını çalıştırın. Yönetici yetkisi gerekmez.
-Kurulumsuz kullanım için `index.html` dosyasını web tarayıcınızda açın.
-`Source code` arşivleri geliştiriciler içindir; hazır uygulama ZIP'ini seçin.
+Mevcut alıştırmalar, dikte, ayarlar ve geçmiş korunur.
 
-Türkçe dikte için cihazda Türkçe konuşma sesi gerekir. Kayıtlar kullanılan
-tarayıcıya ve dosya konumuna bağlıdır. JSON dışa aktarma ile arşivleyebilirsiniz.
+**Web:** [Uygulamayı aç](https://aykido.github.io/KlavyeTrain/)
+
+**Windows:** `KlavyeTrain-v1.1.0-Windows-Portable.zip` dosyasını indirin,
+klasöre çıkarın ve `Kur.cmd` dosyasını çalıştırın. Yönetici yetkisi gerekmez.
+Kurulumsuz kullanım için `index.html` dosyasını tarayıcıda açın.
+
+Web ve indirilen uygulama ayrı tarayıcı kayıt alanları kullanır.

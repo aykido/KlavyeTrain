@@ -1,6 +1,6 @@
 # Türkçe Klavye Antrenörü
 
-**Hazırlayan: Aykut BOZALAN · Sürüm 1.0.0**
+**Hazırlayan: Aykut BOZALAN · Sürüm 1.1.0**
 
 Halk Eğitimi Merkezi kursiyerleri için Türkçe F ve Q klavye eğitimi.
 Öncelik doğruluk, klavye hâkimiyeti ve istikrarlı ritimdir. Hedef yaklaşık
@@ -15,7 +15,7 @@ bilgisayara indirilecek kurulum paketi içindir.
 Web sürümü `main` dalına yapılan güncellemelerden sonra otomatik yayımlanır.
 Web sürümünün geçmişi indirilen uygulamadan ayrıdır; aynı tarayıcıda saklanır.
 
-[GitHub Releases](https://github.com/aykido/KlavyeTrain/releases/latest) bölümünden `KlavyeTrain-v1.0.0-Windows-Portable.zip`
+[GitHub Releases](https://github.com/aykido/KlavyeTrain/releases/latest) bölümünden `KlavyeTrain-v1.1.0-Windows-Portable.zip`
 dosyasını indirin, ZIP'i çıkarın ve **Kur.cmd** dosyasını çalıştırın.
 Masaüstünde ve Başlat menüsünde kısayol oluşur. Yönetici yetkisi gerekmez.
 Kurulum imzasız bir PowerShell betiğidir; `.exe` yükleyici değildir.
@@ -25,6 +25,11 @@ macOS ve Linux'ta da bu dosya kullanılabilir. Windows betiklerini çalıştırm
 [Ayrıntılı kullanım ve kaldırma yönergeleri](KULLANIM.md).
 
 ## Özellikler
+
+- **Akıcı metin çalışması:** geniş okuma alanında yan yana kelimeler, boşlukla
+  kesintisiz ilerleme ve çok satırlı yazı editörü. Süre boyunca yeni kelimeler eklenir;
+  etkin kelime görünür tutulur. Hatalı kelimede durmak zorunda kalmadan ilerlenebilir.
+  Önceki kelimeler imleçle düzenlenebilir; sonuçlar yeniden hesaplanır.
 
 - F/Q seçimi, gerçek harf yerleşimi, parmak önerileri ve dört yardım seviyesi.
 - Klavyeyi tanı, tuş bulma, harf, kısa/orta/uzun kelime, Türkçe karakter ve cümle.
@@ -68,7 +73,7 @@ npm ci
 npm run check
 ```
 
-`v1.0.0` etiketi GitHub Actions üzerinden test, derleme, ZIP ve Release
+`vX.Y.Z` etiketi GitHub Actions üzerinden test, derleme, ZIP ve Release
 yayınını tetikler. Depoda Actions etkin olmalıdır. `main` ve pull request
 değişiklikleri de test edilir. `dist/` ve `release/` Git'e eklenmez.
 
