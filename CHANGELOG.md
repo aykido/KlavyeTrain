@@ -1,5 +1,9 @@
 # Sürüm geçmişi
 
+## 1.2.1 — 2026-10-02
+
+- Rehber el anahtarının Açık/Kapalı yazısı seçimle birlikte anında güncellenir.
+
 ## 1.2.0 — 2026-10-02
 
 - Yeni Klavye haritaları bölümü: Türkçe Q/F için özgün vektör el ve parmak görselleri.

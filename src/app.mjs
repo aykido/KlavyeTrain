@@ -327,6 +327,7 @@ function showKeyboardMap(layoutId = settings.keyboardLayout) {
   for (const button of document.querySelectorAll('[data-map-layout]')) button.onclick = ()=>showKeyboardMap(button.dataset.mapLayout);
   $('#map-show-hands').onchange = event => {
     settings.showHands = event.target.checked; store.saveSettings(settings);
+    $('#map-hand-state').textContent = settings.showHands ? 'Açık' : 'Kapalı';
     $('#map-graphic').innerHTML = keyboardGraphic(layout,{showHands:settings.showHands,interactive:true});
     mapController.select(mapController.value);
   };

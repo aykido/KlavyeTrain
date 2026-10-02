@@ -43,6 +43,7 @@ test('harita F/Q önizlemesi, Shift yönlendirmesi ve gezinme temizliği',()=>{
     key.dispatchEvent(new app.dom.window.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
     assert.equal(app.dom.window.document.activeElement.dataset.keyCode,'KeyG');
     app.click('#map-show-hands');
+    assert.equal(app.$('#map-hand-state').textContent,'Kapalı');
     assert.equal(JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.settings.v1')).showHands,false);
     assert.equal(app.$('.hands-layer').style.display,'none');
     app.click('[data-nav="home"]');
@@ -119,7 +120,7 @@ test('süre dolunca son kelime bir kez sayılır, ilerideki metin hata sayılmaz
 });
 test('ilk açılış, F/Q seçimi, hazırlayan ve sürüm bilgisi',()=>{
   const app=boot();try {
-    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.2\.0/);
+    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.2\.1/);
     app.click('[data-layout="TR_F"]');assert.equal(app.$('#layout-badge').textContent,'Türkçe F');
     assert.equal(app.dom.window.document.querySelectorAll('[data-mode]').length,10);assert.deepEqual(app.errors,[]);
   } finally{app.close();}
