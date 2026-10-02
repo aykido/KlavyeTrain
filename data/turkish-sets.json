@@ -1,0 +1,22 @@
+{
+  "dotless": {
+    "name": "I / İ / ı / i ayrımı",
+    "description": "Noktalı ve noktasız harfleri, büyük ve küçük biçimleriyle ayırt et.",
+    "phrases": ["ılık ışık", "ince iplik", "Işık ile İpek", "İlgi ve ısınma", "Isparta İzmir", "ırmak içi", "İyi bir fikir", "Ilık bir iklim", "ışıldayan inciler", "İki kişi", "ısınan ısıtıcı", "IŞIK İLGİ ılık iyi"]
+  },
+  "special": {
+    "name": "Ç / Ğ / Ö / Ş / Ü",
+    "description": "Türkçeye özgü harfleri kısa kelime gruplarıyla pekiştir.",
+    "phrases": ["çağrı çiçek", "öğüt ölçü", "şişe şeker", "üzüm üzgün", "gökyüzü yağış", "küçük köprü", "güçlü görüş", "çağdaş düşünce", "göçmen kuş", "çözüm özgürlük", "şöyle güzel", "Çığ Öykü Şule Ümit", "ağaç gölge", "öğle güneşi"]
+  },
+  "suffixes": {
+    "name": "Ekler ve ünlü uyumu",
+    "description": "Sık kullanılan ekleri farklı seslerle yaz: -lar/-ler, -da/-de, -dır/-dir.",
+    "phrases": ["evler yollar", "okullar köyler", "bahçede okulda", "evden yoldan", "kitaplar defterler", "gözlük gülücük", "kalemim kitabım", "doğrudur güzeldir", "çocukların işleri", "gündüzün ışığı", "öğrencilere sorular", "yazılıyor öğreniliyor", "şehrimiz ülkemiz", "görüşünüz düşünceniz"]
+  },
+  "punctuation": {
+    "name": "Büyük harf, kesme ve noktalama",
+    "description": "Türkçe adları, kesme işaretini ve günlük noktalama kalıplarını çalış.",
+    "phrases": ["Ankara'da bir gün.", "İzmir'e gidiyorum.", "Türkiye'nin şehirleri.", "Saat 09.30'da başlayalım.", "İyi misin? Evet, iyiyim.", "Önce oku, sonra yaz.", "Dikkat: ışık açık!", "Aykut'un kalemi.", "Çay, süt ve su.", "Şule'nin defteri.", "Öğretmen: Hazır mısınız?", "Bugün 2 Ekim Cuma."]
+  }
+}

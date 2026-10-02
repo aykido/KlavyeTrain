@@ -68,3 +68,17 @@ Taşınabilir kullanımı kaldırmak için indirdiğiniz klasörü silebilirsini
 Üst menüden Klavye haritaları bölümünü açın. Türkçe Q ve Türkçe F düğmeleriyle iki düzeni inceleyebilirsiniz; bu önizleme çalışma klavyenizi değiştirmez. Tuşlara dokunun, üzerlerine gelin veya klavyenizden harf yazın. İlgili parmak ve tuş birlikte vurgulanır. Büyük harflerde karşı elin Shift parmağı da gösterilir. Tab ile haritaya geçip ok tuşlarıyla gezinebilirsiniz.
 
 Elleri göster seçeneği haritada, çalışma ekranında ve Ayarlar bölümünde bulunur. Seçiminiz saklanır. Temel yerleşimi göster düğmesi elleri başlangıç konumuna döndürür.
+
+## Isı haritası, seri ve grafikler
+
+Gelişimim ekranındaki klavye filtresi Q/F sonuçlarını ayrı gösterir. Isı haritası bu klavyenin son kayıtlı yazma çalışmalarındaki hata / vuruş oranını gösterir; veri olmayan tuşlar gri kalır. Bir tuşa dokunarak sayıları görün. Az örnekli oranlar birkaç çalışma sonra değişebilir. Grafikleri çalışma türüne göre filtreleyerek benzer alıştırmaları karşılaştırın.
+
+Her kayıtlı yazma veya kısayol çalışması günlük seriye katkı yapar. Aynı gün bir kez sayılır; bugün henüz çalışmadıysanız dünkü seri korunur. Günler, son 20 sonuçtan ayrı saklanır (en fazla 366 gün). Daha önce silinen sonuçların tarihleri geri oluşturulamaz.
+
+## Türkçe setler ve kısayollar
+
+Türkçe odaklı setler kartından I/İ ayrımı, Türkçe harfler, ekler veya noktalama seçin. Akıcı metin gibi boşlukla ilerleyin. Set adı sonuçlarda saklanır.
+
+Kısayol atölyesinde fiziksel klavye kullanın. Deneme alanına tıklayıp gösterilen kombinasyona basın, etkisini görün ve sonraki adıma geçin. Kopyalama/yapıştırma uygulama içindeki örnek panoda gösterilir. Ctrl+A/C/X/V/Z/Y, Ctrl+oklar ve Home/End çalışılır; Mac’te Ctrl yerine Command kullanılabilir. Sonuçlar yazma hızına katılmaz.
+
+Geçmişi JSON olarak indirme, yazma sonuçlarıyla birlikte kısayol sonuçlarını ve kayıtlı çalışma günlerini de içerir.

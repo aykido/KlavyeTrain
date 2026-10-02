@@ -6,12 +6,13 @@ const read = name => readFile(path.join(root,name),'utf8');
 const metadata = JSON.parse(await read('package.json'));
 if (!/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(metadata.version)) throw new Error('Geçersiz sürüm');
 const data = { version:metadata.version };
-for (const name of ['config','words','sentences','keyboards']) data[name] = JSON.parse(await read(`data/${name}.json`));
+for (const name of ['config','words','sentences','keyboards','turkish-sets']) data[name] = JSON.parse(await read(`data/${name}.json`));
 for (const level of [1,2,3,4]) if (!data.words[level]?.length || data.words[level].some(word=>typeof word !== 'string' || !word.trim())) throw new Error(`Kelime verisi hatalı: ${level}`);
+for (const set of Object.values(data['turkish-sets'])) if (!set.name || !set.description || !Array.isArray(set.phrases) || !set.phrases.length || set.phrases.some(phrase=>typeof phrase !== 'string' || !phrase.trim())) throw new Error('Türkçe set verisi hatalı');
 for (const layout of Object.values(data.keyboards)) {
   if (layout.rows.length !== layout.shiftRows.length || layout.rows.some((row,i)=>[...row].length !== [...layout.shiftRows[i]].length)) throw new Error('Klavye haritası hatalı');
 }
-const js = (await Promise.all(['core','storage','flow','keyboard-guide','app'].map(name=>read(`src/${name}.mjs`))))
+const js = (await Promise.all(['core','progress','storage','flow','keyboard-guide','shortcuts','history-view','app'].map(name=>read(`src/${name}.mjs`))))
   .map(source=>source.replace(/^import .+;\r?\n/gm,'').replace(/^export /gm,'')).join('\n');
 // Inline JSON must never be able to terminate its script element.
 const json = JSON.stringify(data).replace(/</g,'\\u003c');

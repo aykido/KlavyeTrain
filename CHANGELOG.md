@@ -1,5 +1,13 @@
 # Sürüm geçmişi
 
+## 1.3.0 — 2026-10-02
+
+- Gelişimim: Q/F düzenine göre ayrı tuş ısı haritası; vuruş sayıları ve hata oranları.
+- Çalışma serisi, 14 günlük takvim, hız/doğruluk grafikleri ve çalışma türü filtresi.
+- Türkçe odaklı dört akıcı set: I/İ ayrımı, Türkçe harfler, ekler ve noktalama.
+- 10 adımlı kısayol atölyesi: metin düzenleme ve imleç hareketleri; ayrı başarı kaydı.
+- Çalışma günleri sonuç listesinden ayrı saklanır; JSON dışa aktarma yeni kayıtları içerir.
+
 ## 1.2.4 — 2026-10-02
 
 - El panelinin oranları düzeltildi: kareye yakın avuç, daha uzun görünen parmaklar, avuca bağlı 38° başparmak ve kısa bilek.

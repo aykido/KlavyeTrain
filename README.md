@@ -1,6 +1,6 @@
 # Türkçe Klavye Antrenörü
 
-**Hazırlayan: Aykut BOZALAN · Sürüm 1.2.4**
+**Hazırlayan: Aykut BOZALAN · Sürüm 1.3.0**
 
 Halk Eğitimi Merkezi kursiyerleri için Türkçe F ve Q klavye eğitimi.
 Öncelik doğruluk, klavye hâkimiyeti ve istikrarlı ritimdir. Hedef yaklaşık
@@ -15,7 +15,7 @@ bilgisayara indirilecek kurulum paketi içindir.
 Web sürümü `main` dalına yapılan güncellemelerden sonra otomatik yayımlanır.
 Web sürümünün geçmişi indirilen uygulamadan ayrıdır; aynı tarayıcıda saklanır.
 
-[GitHub Releases](https://github.com/aykido/KlavyeTrain/releases/latest) bölümünden `KlavyeTrain-v1.2.4-Windows-Portable.zip`
+[GitHub Releases](https://github.com/aykido/KlavyeTrain/releases/latest) bölümünden `KlavyeTrain-v1.3.0-Windows-Portable.zip`
 dosyasını indirin, ZIP'i çıkarın ve **Kur.cmd** dosyasını çalıştırın.
 Masaüstünde ve Başlat menüsünde kısayol oluşur. Yönetici yetkisi gerekmez.
 Kurulum imzasız bir PowerShell betiğidir; `.exe` yükleyici değildir.
@@ -92,3 +92,11 @@ Bu proje için henüz açık kaynak lisansı seçilmemiştir.
 ### Görsel parmak rehberi
 
 Klavye haritaları bölümünde Q/F düzenleri, renkli parmak grupları ve klavyenin altında ayrı SVG içinde kapsül parmaklar bulunur. Tuş seçimi, karşı el ile Shift desteği ve isteğe bağlı çalışma rehberi çevrimdışı da çalışır. Çizimler proje için kodla oluşturulmuştur; üçüncü taraf görsel kullanılmaz.
+
+### Öğrenci araçları
+
+- Q/F için ayrı tuş ısı haritası: hata oranı, vuruş sayısı ve az örnek bilgisi.
+- Günlük çalışma serisi, 14 günlük takvim, hız/doğruluk grafikleri ve tür filtresi.
+- Dört akıcı Türkçe seti: I/İ, Türkçe harfler, ekler ve noktalama.
+- Örnek metinde 10 kısayol alıştırması; kısayol sonuçları yazma hızından ayrı tutulur.
+- Son 20 yazma ve 20 kısayol sonucu, ayrı saklanan 366 çalışma günü; tümü yerel ve çevrimdışı.

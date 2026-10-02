@@ -1,5 +1,8 @@
+import { validDay } from './progress.mjs';
 const SETTINGS_KEY = 'klavyetrain.settings.v1';
 const HISTORY_KEY = 'klavyetrain.history.v1';
+const ACTIVITY_KEY = 'klavyetrain.activity.v1';
+const SHORTCUTS_KEY = 'klavyetrain.shortcuts.v1';
 export const defaults = { version: 1, keyboardLayout: null, help: 1, font: 'normal',
   theme: 'system', contrast: false, speechRate: 0.8, showHands: true };
 const finite = value => typeof value === 'number' && Number.isFinite(value) && value >= 0;
@@ -42,4 +45,16 @@ export class StorageManager {
   }
   saveSettings(settings) { return this.write(SETTINGS_KEY, settings); }
   saveHistory(sessions) { return this.write(HISTORY_KEY, { version: 1, sessions: sessions.filter(validSession).slice(-20) }); }
+  activityDays() {
+    const value = this.read(ACTIVITY_KEY, {version:1,days:[]});
+    if (value?.version !== 1) { this.blocked.add(ACTIVITY_KEY); this.warn('Çalışma serisi sürümü desteklenmiyor; kayıt korunuyor.'); return []; }
+    return Array.isArray(value.days) ? [...new Set(value.days.filter(validDay))].sort().slice(-366) : [];
+  }
+  saveActivityDays(days) { return this.write(ACTIVITY_KEY, {version:1,days:[...new Set(days.filter(validDay))].sort().slice(-366)}); }
+  shortcuts() {
+    const value = this.read(SHORTCUTS_KEY, {version:1,sessions:[]});
+    if (value?.version !== 1) { this.blocked.add(SHORTCUTS_KEY); this.warn('Kısayol kayıt sürümü desteklenmiyor; kayıt korunuyor.'); return []; }
+    return Array.isArray(value.sessions) ? value.sessions.filter(s=>s?.version === 1 && typeof s.id === 'string' && Number.isFinite(Date.parse(s.startedAt)) && ['TR_Q','TR_F'].includes(s.keyboardLayout) && [s.attempts,s.correct,s.completed,s.durationSeconds].every(finite) && s.attempts > 0 && s.correct <= s.attempts && s.completed <= 10 && s.correct === s.completed).slice(-20) : [];
+  }
+  saveShortcuts(sessions) { return this.write(SHORTCUTS_KEY, {version:1,sessions:sessions.slice(-20)}); }
 }

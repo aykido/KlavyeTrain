@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { JSDOM, VirtualConsole } from 'jsdom';
+import {shortcutTasks} from '../src/shortcuts.mjs';
+import {createSession,metrics} from '../src/core.mjs';
 const html=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');
 function boot(saved, now) {
   const errors=[];
@@ -28,6 +30,55 @@ function startFlow(app) {
   app.$('#duration').value='60';app.click('#setup-form button[type="submit"]');
 }
 function flowWord(app, index) { return app.$(`[data-flow-word="${index}"]`).textContent; }
+test('Türkçe odaklı set akıcı editörde boşlukla ilerler ve set kaydedilir',()=>{
+  const app=boot();try {
+    app.click('[data-layout="TR_Q"]');app.click('[data-mode="TURKISH"]');
+    assert.equal(app.dom.window.document.querySelectorAll('#turkish-set option').length,4);
+    app.$('#turkish-set').value='punctuation';app.$('#turkish-set').dispatchEvent(new app.dom.window.Event('change'));
+    app.click('#setup-form button[type="submit"]');assert.equal(app.$('#typing').tagName,'TEXTAREA');
+    const target=flowWord(app,0);type(app,target+' ');assert.equal(app.$('#word-count').textContent,'1');app.click('#finish');
+    const saved=JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.history.v1')).sessions[0];
+    assert.equal(saved.exerciseType,'TURKISH');assert.equal(saved.turkishSet,'punctuation');assert.equal(saved.correctWords,1);
+    assert.equal(JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.activity.v1')).days.length,1);
+    assert.deepEqual(app.errors,[]);
+  }finally{app.close();}
+});
+test('kısayol turunda yanlış deneme, tekrar engeli, duraklatma ve ayrı kayıt',()=>{
+  const app=boot();try {
+    app.click('[data-layout="TR_F"]');app.click('[data-mode="SHORTCUTS"]');app.click('#shortcut-start');
+    const press=(key,options={})=>{
+      const event=new app.dom.window.KeyboardEvent('keydown',{key,ctrlKey:true,bubbles:true,cancelable:true,...options});
+      app.$('#shortcut-editor').dispatchEvent(event);return event;
+    };
+    assert.equal(press('c').defaultPrevented,true);press('a');assert.equal(app.$('#shortcut-count').textContent,'1 / 10');
+    press('a',{repeat:true});assert.equal(app.$('#shortcut-count').textContent,'1 / 10');
+    app.click('#shortcut-pause');assert.equal(app.$('#shortcut-next').disabled,true);app.click('#shortcut-pause');app.click('#shortcut-next');
+    for(const task of shortcutTasks.slice(1)) {
+      const key=task.keys[0].split('+').at(-1);press(key,{ctrlKey:task.keys[0].startsWith('Ctrl+')});app.click('#shortcut-next');
+    }
+    const saved=JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.shortcuts.v1')).sessions[0];
+    assert.equal(saved.completed,10);assert.equal(saved.attempts,11);assert.equal(saved.correct,10);
+    assert.equal(app.dom.window.localStorage.getItem('klavyetrain.history.v1'),null);
+    app.click('[data-nav="history"]');assert.equal(app.$('#streak-current').textContent,'1');
+    assert.match(app.$('#main').textContent,/Kısayol sonuçları/);assert.deepEqual(app.errors,[]);
+  }finally{app.close();}
+});
+test('ısı haritası ve grafik filtresi Q/F verilerini karıştırmaz',()=>{
+  const make=(layout,rate,attempts,errors)=>metrics({...createSession(layout,'WORDS',2),totalCharacters:attempts,correctCharacters:attempts-errors,incorrectCharacters:errors,correctWords:rate,keyStats:{'ş':{attempts,errors}}},60);
+  const app=boot({'klavyetrain.settings.v1':JSON.stringify({version:1,keyboardLayout:'TR_Q'}),'klavyetrain.history.v1':JSON.stringify({version:1,sessions:[make('TR_Q',12,20,2),make('TR_F',25,10,5)]})});try {
+    app.click('[data-nav="history"]');assert.match(app.$('[data-heat-key="ş"]').title,/2 hata \/ 20 vuruş/);
+    app.click('[data-heat-key="ş"]');assert.match(app.$('#heat-detail').textContent,/2 hata \/ 20 vuruş/);
+    app.$('#history-layout').value='TR_F';app.$('#history-layout').dispatchEvent(new app.dom.window.Event('change'));
+    assert.match(app.$('[data-heat-key="ş"]').title,/5 hata \/ 10 vuruş/);
+    assert.equal(app.dom.window.document.querySelectorAll('.trend-chart .chart-point').length,2);
+    assert.equal(JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.settings.v1')).keyboardLayout,'TR_Q');
+    app.$('#history-mode').value='FLOW';app.$('#history-mode').dispatchEvent(new app.dom.window.Event('change'));
+    assert.equal(app.$('.trend-chart'),null);
+    app.click('[data-mode="WEAK"]');
+    assert.equal(JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.settings.v1')).keyboardLayout,'TR_F');
+    assert.deepEqual(app.errors,[]);
+  }finally{app.close();}
+});
 test('harita F/Q önizlemesi, Shift yönlendirmesi ve gezinme temizliği',()=>{
   const app=boot();try {
     app.click('[data-layout="TR_Q"]'); app.click('[data-nav="keyboard"]');
@@ -120,9 +171,9 @@ test('süre dolunca son kelime bir kez sayılır, ilerideki metin hata sayılmaz
 });
 test('ilk açılış, F/Q seçimi, hazırlayan ve sürüm bilgisi',()=>{
   const app=boot();try {
-    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.2\.4/);
+    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.3\.0/);
     app.click('[data-layout="TR_F"]');assert.equal(app.$('#layout-badge').textContent,'Türkçe F');
-    assert.equal(app.dom.window.document.querySelectorAll('[data-mode]').length,10);assert.deepEqual(app.errors,[]);
+    assert.equal(app.dom.window.document.querySelectorAll('[data-mode]').length,12);assert.deepEqual(app.errors,[]);
   } finally{app.close();}
 });
 test('kelime girişi, hata düzeltme, Enter ve kayıtlı sonuç akışı',()=>{

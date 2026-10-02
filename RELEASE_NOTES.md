@@ -1,11 +1,13 @@
-## v1.2.4 — El panelinde orantı düzeltmesi
+## v1.3.0 — Gelişim takibi ve yeni öğrenci araçları
 
 **Hazırlayan: Aykut BOZALAN**
 
-Klavye haritaları bölümünde Türkçe Q ve F klavyeleri, klavyenin altında sade kapsül parmaklar ve renkli parmak gruplarıyla inceleyin. Tuşa dokunun, üzerine gelin veya klavyeden yazın; önerilen parmak gösterilsin. Büyük harfler için karşı elin Shift parmağı da vurgulanır.
+Gelişimim ekranına Q/F için ayrı zayıf tuş ısı haritası, çalışma serisi, 14 günlük takvim ve hız/doğruluk grafikleri eklendi. Tuşlara dokunarak vuruş ve hata sayılarını inceleyin; çalışma türüne göre grafikleri filtreleyin.
 
-El paneli kareye yakın avuç, daha uzun parmaklar, avuca bağlı başparmaklar ve kısa bileklerle yenilendi. El rehberi çalışmalarda da açılıp kapatılabilir. Akıcı metin modu, yardım seviyeleri, ayarlar ve geçmiş korunur.
+Türkçe odaklı setlerde I/İ ayrımı, Ç/Ğ/Ö/Ş/Ü, ekler ve noktalama boşlukla ilerleyen geniş editörde çalışılır. Kısayol atölyesi seçme, kopyalama, kesme, yapıştırma, geri alma ve imleç hareketlerini 10 örnek adımla öğretir. Kısayol sonuçları yazma hızından ayrı kaydedilir.
+
+Mevcut el rehberi, akıcı metin, yardım seviyeleri ve geçmiş korunur. Yeni özellikler çevrimdışı pakette de kullanılabilir.
 
 **Web:** [Uygulamayı aç](https://aykido.github.io/KlavyeTrain/)
 
-**Windows:** `KlavyeTrain-v1.2.4-Windows-Portable.zip` dosyasını indirin, klasöre çıkarın ve `Kur.cmd` dosyasını çalıştırın. Yönetici yetkisi gerekmez. Kurulumsuz kullanım için `index.html` dosyasını tarayıcıda açın.
+**Windows:** `KlavyeTrain-v1.3.0-Windows-Portable.zip` dosyasını indirin, klasöre çıkarın ve `Kur.cmd` dosyasını çalıştırın. Yönetici yetkisi gerekmez. Kurulumsuz kullanım için `index.html` dosyasını tarayıcıda açın.
