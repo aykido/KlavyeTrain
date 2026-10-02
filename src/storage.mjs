@@ -1,7 +1,7 @@
 const SETTINGS_KEY = 'klavyetrain.settings.v1';
 const HISTORY_KEY = 'klavyetrain.history.v1';
 export const defaults = { version: 1, keyboardLayout: null, help: 1, font: 'normal',
-  theme: 'system', contrast: false, speechRate: 0.8 };
+  theme: 'system', contrast: false, speechRate: 0.8, showHands: true };
 const finite = value => typeof value === 'number' && Number.isFinite(value) && value >= 0;
 export function validSession(s) {
   if (!s || s.version !== 1 || !['TR_F', 'TR_Q'].includes(s.keyboardLayout) ||
@@ -31,6 +31,7 @@ export class StorageManager {
       keyboardLayout: ['TR_F', 'TR_Q'].includes(s.keyboardLayout) ? s.keyboardLayout : null,
       help: [1, 2, 3, 4].includes(s.help) ? s.help : 1,
       font: s.font === 'large' ? 'large' : 'normal',
+      showHands: s.showHands !== false,
       theme: ['light', 'dark', 'system'].includes(s.theme) ? s.theme : 'system',
       contrast: s.contrast === true, speechRate: [0.6, 0.8, 1].includes(s.speechRate) ? s.speechRate : 0.8 };
   }

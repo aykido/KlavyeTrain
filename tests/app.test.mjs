@@ -28,6 +28,40 @@ function startFlow(app) {
   app.$('#duration').value='60';app.click('#setup-form button[type="submit"]');
 }
 function flowWord(app, index) { return app.$(`[data-flow-word="${index}"]`).textContent; }
+test('harita F/Q önizlemesi, Shift yönlendirmesi ve gezinme temizliği',()=>{
+  const app=boot();try {
+    app.click('[data-layout="TR_Q"]'); app.click('[data-nav="keyboard"]');
+    assert.equal(app.dom.window.document.querySelectorAll('[data-finger]').length,10);
+    app.click('[data-map-layout="TR_F"]');
+    assert.match(app.$('.guide-home-row').textContent,/U · İ · E · A/);
+    assert.equal(JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.settings.v1')).keyboardLayout,'TR_Q');
+    app.dom.window.document.body.dispatchEvent(new app.dom.window.KeyboardEvent('keydown',{key:'İ',bubbles:true,cancelable:true}));
+    assert.ok(app.$('[data-finger="L4"]').classList.contains('is-active'));
+    assert.ok(app.$('[data-finger="R5"]').classList.contains('is-active'));
+    assert.match(app.$('[data-guide-message]').textContent,/Shift/);
+    const key=app.$('[data-key-code="KeyF"]');key.focus();
+    key.dispatchEvent(new app.dom.window.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
+    assert.equal(app.dom.window.document.activeElement.dataset.keyCode,'KeyG');
+    app.click('#map-show-hands');
+    assert.equal(JSON.parse(app.dom.window.localStorage.getItem('klavyetrain.settings.v1')).showHands,false);
+    assert.equal(app.$('.hands-layer').style.display,'none');
+    app.click('[data-nav="home"]');
+    const event=new app.dom.window.KeyboardEvent('keydown',{key:'a',bubbles:true,cancelable:true});
+    app.dom.window.document.body.dispatchEvent(event);assert.equal(event.defaultPrevented,false);
+    assert.deepEqual(app.errors,[]);
+  }finally{app.close();}
+});
+test('el rehberi yardım seviyelerinde erken ipucu göstermez',()=>{
+  for(const help of [2,3,4]) {
+    const app=boot({'klavyetrain.settings.v1':JSON.stringify({version:1,keyboardLayout:'TR_Q',help})});try{
+      app.click('[data-mode="WORDS"]');app.click('#setup-form button[type="submit"]');
+      assert.equal(app.dom.window.document.querySelectorAll('#keyboard-area .is-active').length,0);
+      assert.equal(Boolean(app.$('#keyboard-area svg')),help!==4);
+      if(help!==4) assert.equal(app.$('#exercise-show-hands').checked,true);
+      assert.deepEqual(app.errors,[]);
+    }finally{app.close();}
+  }
+});
 test('akıcı mod geniş metin ve textarea açar, boşlukla kesintisiz sayar',()=>{
   const app=boot();try {
     startFlow(app);
@@ -85,7 +119,7 @@ test('süre dolunca son kelime bir kez sayılır, ilerideki metin hata sayılmaz
 });
 test('ilk açılış, F/Q seçimi, hazırlayan ve sürüm bilgisi',()=>{
   const app=boot();try {
-    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.1\.0/);
+    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.2\.0/);
     app.click('[data-layout="TR_F"]');assert.equal(app.$('#layout-badge').textContent,'Türkçe F');
     assert.equal(app.dom.window.document.querySelectorAll('[data-mode]').length,10);assert.deepEqual(app.errors,[]);
   } finally{app.close();}

@@ -1,6 +1,7 @@
-import { lowerTR, equalTR, createSession, recordKey, submitWords, metrics, trainingLevel, feedback, chooseTarget, mergeKeyStats, keyboardKeys } from './core.mjs';
+import { lowerTR, equalTR, createSession, recordKey, submitWords, metrics, trainingLevel, feedback, chooseTarget, mergeKeyStats } from './core.mjs';
 import { StorageManager } from './storage.mjs';
 import { analyzeFlow, recordFlowEdit } from './flow.mjs';
+import { keyboardGraphic, updateKeyboardGraphic, fingerLegend, KeyboardGuideController } from './keyboard-guide.mjs';
 
 const data = JSON.parse(document.querySelector('#app-data').textContent);
 const $ = selector => document.querySelector(selector);
@@ -13,6 +14,7 @@ try { local = window.localStorage; } catch { local = null; }
 const store = new StorageManager(local, notice);
 let settings = store.settings(), history = store.history(), active = null, lastResult = null, currentMode = 'WORDS';
 let ticker = null, hintTimer = null, voices = [];
+let mapController = null;
 const modes = {
   FLOW: ['Akıcı metin çalışması', 'Yan yana kelimeleri oku, boşlukla ilerle. Bir editörde yazar gibi kesintisiz çalış.', '≋', 'OKU & YAZ'],
   EXPLORE: ['Klavyeyi tanı', 'Tuşların yerini ve hangi parmağını kullanacağını keşfet.', 'F Q', 'İLK ADIM'],
@@ -34,7 +36,7 @@ function applySettings() {
   $('#layout-badge').textContent = data.keyboards[settings.keyboardLayout]?.name || 'F / Q';
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applySettings);
-function mount(html) { $('#main').innerHTML = html; $('#main').focus({ preventScroll:true }); window.scrollTo(0,0); }
+function mount(html) { mapController?.destroy(); mapController = null; $('#main').innerHTML = html; $('#main').focus({ preventScroll:true }); window.scrollTo(0,0); }
 function stopTimers() { clearInterval(ticker); clearTimeout(hintTimer); window.speechSynthesis?.cancel(); }
 function navigate(page) {
   if (active) {
@@ -43,7 +45,7 @@ function navigate(page) {
   }
   stopTimers(); document.body.classList.remove('exercise-active', 'flow-active');
   if (!settings.keyboardLayout) return welcome();
-  ({ home, history: showHistory, settings: showSettings }[page] || home)();
+  ({ home, history: showHistory, settings: showSettings, keyboard: showKeyboardMap }[page] || home)();
 }
 function welcome() {
   mount(`<section class="intro"><div class="eyebrow">HOŞ GELDİN</div><h1>Her tuşla<br>biraz daha rahat.</h1><p>Hızlanmak için acele etme. Önce klavyeni tanıyalım.<br>Hangi klavye düzenini kullanıyorsun?</p><div class="layout-choices"><button class="layout-choice" data-layout="TR_F">Türkçe<b>F</b></button><button class="layout-choice" data-layout="TR_Q">Türkçe<b>Q</b></button></div><p class="muted">Klavyenin üst harf sırasındaki ilk tuşa bakabilirsin.<br>Seçimini daha sonra Ayarlar bölümünden değiştirebilirsin.</p><div class="tip">Kayıt veya kişisel bilgi gerekmez. Gelişimin bu tarayıcıda saklanır.</div></section>`);
@@ -222,12 +224,13 @@ function renderKeyboard() {
   if (settings.help === 4 || active.mode === 'DICTATION' || active.paused) { area.innerHTML = ''; help.textContent = ''; return; }
   const expected = active.mode === 'FLOW' ? flowCaret().next : [...active.target][[...active.typed].length] || '';
   const show = settings.help === 1 || active.hint;
-  const rows = keyboardKeys(data.keyboards[settings.keyboardLayout]);
-  const key = rows.flat().find(key => key.key === expected || key.shifted === expected);
-  const shifted = key && key.shifted === expected && key.key !== expected;
-  area.innerHTML = `<div class="keyboard-wrap"><div class="keyboard" role="img" aria-label="${data.keyboards[settings.keyboardLayout].name} sanal klavye">${rows.map(row => `<div class="key-row">${row.map(key => `<span class="key ${show && (key.key === expected || key.shifted === expected) ? 'active' : ''}">${escapeHTML(shifted ? key.shifted : key.key.toLocaleUpperCase('tr-TR'))}</span>`).join('')}</div>`).join('')}<div class="key-row"><span class="key shift ${show && shifted ? 'active' : ''}">Shift ⇧</span><span class="key space ${show && expected === ' ' ? 'active' : ''}">Boşluk</span><span class="key shift ${show && shifted ? 'active' : ''}">Shift ⇧</span></div></div></div>`;
-  help.textContent = show && expected ? expected === ' ' ? 'Boşluk tuşu · Başparmak' : `${key?.finger || 'Uygun tuş'}${shifted ? ' + karşı elinle Shift' : ''}` : 'Tuşun yerini hatırlamaya çalış. Acele etme.';
+  const layout = data.keyboards[settings.keyboardLayout];
+  area.innerHTML = '<label class="checkbox exercise-hand-toggle"><input type="checkbox" id="exercise-show-hands" ' + (settings.showHands ? 'checked' : '') + '>Rehber el: <span>' + (settings.showHands ? 'Açık' : 'Kapalı') + '</span></label>' + keyboardGraphic(layout, {showHands:settings.showHands});
+  const selection = updateKeyboardGraphic(area, layout, show ? expected : '');
+  help.textContent = show && expected ? selection.message : 'Tuşun yerini hatırlamaya çalış. Acele etme.';
+  $('#exercise-show-hands').onchange = event => { settings.showHands = event.target.checked; store.saveSettings(settings); renderKeyboard(); $('#typing').focus(); };
 }
+
 function handleInput(event) {
   if (!active || active.paused) return;
   if (event.isComposing) return;
@@ -316,14 +319,27 @@ function showHistory() {
   mount(`<div class="eyebrow">DÜNÜNLE BUGÜNÜN ARASINDA</div><h1>Gelişimim</h1><p style="margin-top:16px">Yalnızca kendi ilerleyişine bak. Her çalışma değerli.</p>${history.length ? `<div class="metrics"><div class="metric"><strong>${history.length}</strong><span>kayıtlı çalışma</span></div><div class="metric"><strong>${number(Math.max(0,...comparable.map(s=>s.realWordsPerMinute)))}</strong><span>en iyi doğru kelime / dk</span></div><div class="metric"><strong>%${number(Math.max(0,...comparable.map(s=>s.accuracy)))}</strong><span>en iyi doğruluk</span></div><div class="metric"><strong>${number(average('realWordsPerMinute'))}</strong><span>ortalama doğru kelime / dk</span></div></div>${last ? `<section class="panel"><h2>Kelime çalışmalarındaki yolculuğun</h2><p>Son çalışma: ${number(last.realWordsPerMinute)} kelime/dk, %${number(last.accuracy)} doğruluk.<br>İlk kayıtlı çalışmana göre ${number(last.realWordsPerMinute-first.realWordsPerMinute)} kelime/dk ve ${number(last.accuracy-first.accuracy)} yüzde puan değişim.</p><div class="history-bars" aria-hidden="true">${comparable.map(s=>`<div class="history-bar" style="height:${Math.max(2,s.realWordsPerMinute/Math.max(1,...comparable.map(s=>s.realWordsPerMinute))*100)}%" title="${number(s.realWordsPerMinute)} kelime/dk"></div>`).join('')}</div><p class="muted">Eskiden yeniye doğru kelime/dk · Ortalama doğruluk: %${number(average('accuracy'))}. Farklı çalışma türleri doğrudan karşılaştırılmayabilir.</p></section>` : ''}<section class="panel table-wrap"><table><caption class="muted">Son ${history.length} çalışma (en fazla ${data.config.historyLimit})</caption><thead><tr><th>Tarih</th><th>Çalışma</th><th>Klavye</th><th>Kelime/dk</th><th>Doğruluk</th><th>Süre</th></tr></thead><tbody>${[...history].reverse().map(s=>`<tr><td>${new Date(s.startedAt).toLocaleString('tr-TR',{dateStyle:'short',timeStyle:'short'})}</td><td>${escapeHTML(modes[s.exerciseType]?.[0] || s.exerciseType)}</td><td>${data.keyboards[s.keyboardLayout].name}</td><td>${isLetterMode(s.exerciseType) ? '—' : number(s.realWordsPerMinute)}</td><td>%${number(s.accuracy)}</td><td>${clock(s.durationSeconds)}</td></tr>`).join('')}</tbody></table></section><div class="actions"><button id="export-history">Geçmişi JSON olarak indir</button></div>` : '<section class="panel empty"><h2>İlk adım seni bekliyor.</h2><p>Bir çalışmayı tamamladığında sonuçların burada görünecek.</p><div class="actions" style="justify-content:center"><button class="primary" data-mode="EXPLORE">Klavyeyi tanı</button></div></section>'}<div class="tip">Sonuçlar yalnızca bu cihazın bu tarayıcısında saklanır. Tarayıcı verilerini temizlemek geçmişini siler. Taşınabilir dosyayı başka bir konuma taşıdığında eski kayıtlar görünmeyebilir.</div>`);
   $('#export-history')?.addEventListener('click',()=>download(history));
 }
+function showKeyboardMap(layoutId = settings.keyboardLayout) {
+  const layout = data.keyboards[layoutId];
+  const homeKeys = [...layout.home.replace(/\s/g,'')].map(char=>char.toLocaleUpperCase('tr-TR'));
+  mount(`<div class="eyebrow">KLAVYE HARİTALARI</div><h1>Ellerin doğru yerde.</h1><p class="guide-intro">Parmaklarını temel sıraya yerleştir. Tuşlara dokunarak, üzerlerine gelerek veya klavyenden basarak önerilen parmağı keşfet.</p><section class="panel" id="keyboard-map"><div class="guide-toolbar"><div class="guide-layout-switch" role="group" aria-label="İncelenen klavye"><button data-map-layout="TR_Q" aria-pressed="${layoutId==='TR_Q'}">Türkçe Q</button><button data-map-layout="TR_F" aria-pressed="${layoutId==='TR_F'}">Türkçe F</button></div><label class="checkbox"><input id="map-show-hands" type="checkbox" ${settings.showHands ? 'checked' : ''}>Rehber el: <span id="map-hand-state">${settings.showHands ? 'Açık' : 'Kapalı'}</span></label></div><p class="muted guide-preview-note">Bu seçim yalnızca haritayı değiştirir. Çalışma klavyen: ${data.keyboards[settings.keyboardLayout].name}.</p><h2 class="guide-map-title">${layout.name} · El ve parmak yerleşimi</h2><div id="map-graphic">${keyboardGraphic(layout,{showHands:settings.showHands,interactive:true})}</div><div class="guide-message" data-guide-message role="status" aria-live="polite">Parmaklarını temel sıraya yerleştir. Bir tuş seçerek hangi parmağını kullanacağını keşfet.</div>${fingerLegend(layout)}<div class="guide-home-row"><p><strong>Sol el:</strong> ${homeKeys.slice(0,4).join(' · ')}</p><p><strong>Sağ el:</strong> ${homeKeys.slice(4).join(' · ')}</p><p><strong>Başparmaklar:</strong> Boşluk</p></div><button id="guide-reset" class="guide-reset">Temel yerleşimi göster</button></section><div class="guide-notes"><div><h3>Temel sıraya dön</h3><p>Her vuruştan sonra parmaklarını başlangıç tuşlarına getir. Elleri, kendi klavyene bakıyormuş gibi görüyorsun.</p></div><div><h3>Büyük harf için iki el</h3><p>Bir harfi yazan elinin karşısındaki serçe parmağınla Shift tuşuna bas. Büyük harf tuşladığında iki parmak birlikte vurgulanır.</p></div><div><h3>Kendi ritminde keşfet</h3><p>Tab ile haritaya geç, ok tuşlarıyla tuşları gez. Açık renkler parmak gruplarını, alt çizgiler temel sırayı gösterir.</p></div></div>`);
+  mapController = new KeyboardGuideController($('#keyboard-map'), layout);
+  for (const button of document.querySelectorAll('[data-map-layout]')) button.onclick = ()=>showKeyboardMap(button.dataset.mapLayout);
+  $('#map-show-hands').onchange = event => {
+    settings.showHands = event.target.checked; store.saveSettings(settings);
+    $('#map-graphic').innerHTML = keyboardGraphic(layout,{showHands:settings.showHands,interactive:true});
+    mapController.select(mapController.value);
+  };
+  $('#guide-reset').onclick = ()=>mapController.select('');
+}
 function showSettings() {
-  mount(`<div class="eyebrow">SANA UYGUN BİR ÇALIŞMA</div><h1>Ayarlar</h1><form id="settings-form" class="panel"><div class="form-grid"><label class="field">Klavye düzeni<select name="keyboardLayout"><option value="TR_Q">Türkçe Q</option><option value="TR_F">Türkçe F</option></select></label><label class="field">Klavye yardımı<select name="help"><option value="1">1 · Tuşu her zaman göster</option><option value="2">2 · Biraz bekledikten sonra göster</option><option value="3">3 · Yanlış tuşta göster</option><option value="4">4 · Yardımsız çalış</option></select></label><label class="field">Yazı boyutu<select name="font"><option value="normal">Normal</option><option value="large">Büyük</option></select></label><label class="field">Tema<select name="theme"><option value="system">Sistem</option><option value="light">Açık</option><option value="dark">Koyu</option></select></label><label class="field">Dikte hızı<select name="speechRate"><option value="0.6">Yavaş</option><option value="0.8">Normal</option><option value="1">Hızlı</option></select></label><label class="checkbox"><input type="checkbox" name="contrast">Yüksek kontrast</label></div><div class="actions"><button class="primary" type="submit">Ayarları kaydet</button></div><p id="settings-status" role="status"></p></form><section class="panel"><h2>Türkçe Klavye Antrenörü</h2><p style="margin-top:10px">Sürüm ${data.version} · Hazırlayan: <strong>Aykut BOZALAN</strong></p><p>Halk Eğitimi Merkezi kursiyerleri için doğruluk ve klavye hâkimiyeti odaklı eğitim.</p><p style="margin-top:10px">Kişisel bilgi istenmez. Sonuçlar bu tarayıcıda kalır; herhangi bir sunucuya gönderilmez. Dikte, cihazdaki Türkçe sesin kullanılabilirliğine bağlıdır.</p><p><a href="https://github.com/aykido" target="_blank" rel="noopener noreferrer">Hazırlayanın GitHub profili ↗</a></p></section>`);
+  mount(`<div class="eyebrow">SANA UYGUN BİR ÇALIŞMA</div><h1>Ayarlar</h1><form id="settings-form" class="panel"><div class="form-grid"><label class="field">Klavye düzeni<select name="keyboardLayout"><option value="TR_Q">Türkçe Q</option><option value="TR_F">Türkçe F</option></select></label><label class="field">Klavye yardımı<select name="help"><option value="1">1 · Tuşu her zaman göster</option><option value="2">2 · Biraz bekledikten sonra göster</option><option value="3">3 · Yanlış tuşta göster</option><option value="4">4 · Yardımsız çalış</option></select></label><label class="field">Yazı boyutu<select name="font"><option value="normal">Normal</option><option value="large">Büyük</option></select></label><label class="field">Tema<select name="theme"><option value="system">Sistem</option><option value="light">Açık</option><option value="dark">Koyu</option></select></label><label class="field">Dikte hızı<select name="speechRate"><option value="0.6">Yavaş</option><option value="0.8">Normal</option><option value="1">Hızlı</option></select></label><label class="checkbox"><input type="checkbox" name="contrast">Yüksek kontrast</label><label class="checkbox"><input type="checkbox" name="showHands">Rehber el (açık / kapalı)</label></div><div class="actions"><button class="primary" type="submit">Ayarları kaydet</button></div><p id="settings-status" role="status"></p></form><section class="panel"><h2>Türkçe Klavye Antrenörü</h2><p style="margin-top:10px">Sürüm ${data.version} · Hazırlayan: <strong>Aykut BOZALAN</strong></p><p>Halk Eğitimi Merkezi kursiyerleri için doğruluk ve klavye hâkimiyeti odaklı eğitim.</p><p style="margin-top:10px">Kişisel bilgi istenmez. Sonuçlar bu tarayıcıda kalır; herhangi bir sunucuya gönderilmez. Dikte, cihazdaki Türkçe sesin kullanılabilirliğine bağlıdır.</p><p><a href="https://github.com/aykido" target="_blank" rel="noopener noreferrer">Hazırlayanın GitHub profili ↗</a></p></section>`);
   for (const [key,value] of Object.entries(settings)) {
     const field = $('#settings-form').elements.namedItem(key); if (field) field.type === 'checkbox' ? field.checked = value : field.value = value;
   }
   $('#settings-form').onsubmit = event => {
     event.preventDefault(); const form = new FormData(event.target);
-    settings = {version:1,keyboardLayout:form.get('keyboardLayout'),help:Number(form.get('help')),font:form.get('font'),theme:form.get('theme'),speechRate:Number(form.get('speechRate')),contrast:form.has('contrast')};
+    settings = {version:1,keyboardLayout:form.get('keyboardLayout'),help:Number(form.get('help')),font:form.get('font'),theme:form.get('theme'),speechRate:Number(form.get('speechRate')),contrast:form.has('contrast'),showHands:form.has('showHands')};
     const saved = store.saveSettings(settings); applySettings(); $('#settings-status').textContent = saved ? 'Ayarların kaydedildi.' : 'Ayarlar bu oturum için uygulandı; kalıcı kayıt yapılamadı.';
   };
 }

@@ -62,3 +62,9 @@ KALDIRMA
 %LOCALAPPDATA%\KlavyeTrain klasöründeki Kaldir.cmd dosyasını çalıştırın.
 Uygulama dosyaları ve kısayollar kaldırılır; tarayıcı kayıtları korunur.
 Taşınabilir kullanımı kaldırmak için indirdiğiniz klasörü silebilirsiniz.
+
+## Klavye haritaları ve el rehberi
+
+Üst menüden Klavye haritaları bölümünü açın. Türkçe Q ve Türkçe F düğmeleriyle iki düzeni inceleyebilirsiniz; bu önizleme çalışma klavyenizi değiştirmez. Tuşlara dokunun, üzerlerine gelin veya klavyenizden harf yazın. İlgili parmak ve tuş birlikte vurgulanır. Büyük harflerde karşı elin Shift parmağı da gösterilir. Tab ile haritaya geçip ok tuşlarıyla gezinebilirsiniz.
+
+Elleri göster seçeneği haritada, çalışma ekranında ve Ayarlar bölümünde bulunur. Seçiminiz saklanır. Temel yerleşimi göster düğmesi elleri başlangıç konumuna döndürür.

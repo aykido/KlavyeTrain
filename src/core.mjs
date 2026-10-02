@@ -91,10 +91,19 @@ export function mergeKeyStats(sessions) {
   return stats;
 }
 
+export const FINGER_NAMES = { L5: 'Sol serçe', L4: 'Sol yüzük', L3: 'Sol orta', L2: 'Sol işaret', L1: 'Sol başparmak',
+  R2: 'Sağ işaret', R3: 'Sağ orta', R4: 'Sağ yüzük', R5: 'Sağ serçe', R1: 'Sağ başparmak' };
 export function keyboardKeys(layout) {
-  const fingers = ['Sol serçe', 'Sol yüzük', 'Sol orta', 'Sol işaret', 'Sol işaret',
-    'Sağ işaret', 'Sağ işaret', 'Sağ orta', 'Sağ yüzük', 'Sağ serçe', 'Sağ serçe', 'Sağ serçe'];
+  const fingers = ['L5', 'L4', 'L3', 'L2', 'L2', 'R2', 'R2', 'R3', 'R4', 'R5', 'R5', 'R5'];
+  const codes = [
+    ['Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal'],
+    ['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight'],
+    ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote','Backslash'],
+    ['IntlBackslash','KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash']
+  ];
   return layout.rows.map((row, rowIndex) => [...row].map((key, position) => ({ key,
     shifted: [...layout.shiftRows[rowIndex]][position], row: rowIndex, position,
-    finger: fingers[rowIndex === 3 ? Math.max(0, position - 1) : position] || 'Sağ serçe' })));
+    code: codes[rowIndex][position], home: layout.home.replace(/\s/g, '').includes(key),
+    fingerId: fingers[rowIndex === 3 ? Math.max(0, position - 1) : position],
+    finger: FINGER_NAMES[fingers[rowIndex === 3 ? Math.max(0, position - 1) : position]] })));
 }

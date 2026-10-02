@@ -1,5 +1,12 @@
 # Sürüm geçmişi
 
+## 1.2.0 — 2026-10-02
+
+- Yeni Klavye haritaları bölümü: Türkçe Q/F için özgün vektör el ve parmak görselleri.
+- Tuşa dokunarak, üzerine gelerek veya klavyeden yazarak parmak yönlendirmesi.
+- Büyük harflerde karşı elin Shift parmağı ve boşlukta başparmak rehberi.
+- Çalışmalarda açılıp kapatılabilen el rehberi; mevcut yardım seviyeleri korunur.
+
 ## 1.1.0 — 2026-10-02
 
 - Yeni Akıcı metin çalışması: yan yana kelimeler, boşlukla ilerleme ve geniş yazı editörü.
