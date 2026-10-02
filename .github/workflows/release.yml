@@ -1,0 +1,29 @@
+name: GitHub sürümü
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Etiket ile uygulama sürümünü doğrula
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Etiket ve package.json sürümü eşleşmiyor.' }
+      - run: npm ci
+      - run: npm run check
+      - run: npm run release:zip
+      - name: İndirilebilir sürümü yayımla
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          gh release create "v$version" "release/KlavyeTrain-v$version-Windows-Portable.zip" "release/SHA256SUMS.txt" --verify-tag --title "Türkçe Klavye Antrenörü v$version" --notes-file RELEASE_NOTES.md

@@ -1,0 +1,13 @@
+{
+  "historyLimit": 20,
+  "hintDelayMs": 2500,
+  "targetWpm": 30,
+  "targetAccuracy": 95,
+  "levels": [
+    { "name": "Hedef", "wpm": 30, "accuracy": 95 },
+    { "name": "Akıcılık", "wpm": 25, "accuracy": 95 },
+    { "name": "Gelişme", "wpm": 20, "accuracy": 93 },
+    { "name": "Alışma", "wpm": 15, "accuracy": 90 },
+    { "name": "Başlangıç", "wpm": 0, "accuracy": 0 }
+  ]
+}

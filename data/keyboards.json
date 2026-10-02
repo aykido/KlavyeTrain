@@ -1,0 +1,14 @@
+{
+  "TR_Q": {
+    "name": "Türkçe Q",
+    "rows": ["1234567890*-", "qwertyuıopğü", "asdfghjklşi,", "<zxcvbnmöç."],
+    "shiftRows": ["!\"^+%&/()=?_", "QWERTYUIOPĞÜ", "ASDFGHJKLŞİ;", ">ZXCVBNMÖÇ:"],
+    "home": "asdf jklş"
+  },
+  "TR_F": {
+    "name": "Türkçe F",
+    "rows": ["1234567890/-", "fgğıodrnhpqw", "uieaütkmlyşx", "<jövcçzsb.,"],
+    "shiftRows": ["!\"^$%&'()=?_", "FGĞIODRNHPQW", "UİEAÜTKMLYŞX", ">JÖVCÇZSB:;"],
+    "home": "uiea kmly"
+  }
+}
