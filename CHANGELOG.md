@@ -1,5 +1,11 @@
 # Sürüm geçmişi
 
+## 1.2.2 — 2026-10-02
+
+- Eller klavyenin altına, ayrı SVG içine alındı.
+- Her elde beş kapsül parmak ve yuvarlatılmış avuç; belirlenen parmak uzunluğu oranları uygulandı.
+- Seçili parmak tam renkli, diğer parmaklar %25 opak; parmaklara ayrı CSS kimlikleri eklendi.
+
 ## 1.2.1 — 2026-10-02
 
 - Rehber el anahtarının Açık/Kapalı yazısı seçimle birlikte anında güncellenir.

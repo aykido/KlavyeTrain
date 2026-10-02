@@ -31,41 +31,28 @@ export function guideSelection(layout, value) {
 }
 
 const handSpecs = [
-  {suffix:'5', x:135, baseX:166, baseY:301, width:27},
-  {suffix:'4', x:195, baseX:208, baseY:289, width:31},
-  {suffix:'3', x:255, baseX:251, baseY:286, width:33},
-  {suffix:'2', x:315, baseX:295, baseY:300, width:32},
-  {suffix:'1', x:370, y:291, baseX:307, baseY:350, width:35}
+  {suffix:'5', name:'serce', x:150, ratio:.75},
+  {suffix:'4', name:'yuzuk', x:195, ratio:.92},
+  {suffix:'3', name:'orta', x:240, ratio:1},
+  {suffix:'2', name:'isaret', x:285, ratio:.9},
+  {suffix:'1', name:'bas', x:322, ratio:.7}
 ];
-function fingerGeometry(spec, side, selection) {
-  const id = side + spec.suffix;
-  const pressed = [selection.key, selection.shift].find(key => key?.fingerId === id);
-  let x = spec.x, y = spec.y || 171;
-  if (pressed) {
-    const globalX = pressed.code === 'Space' ? 440 : pressed.tipX || pressed.x + pressed.width / 2;
-    x = side === 'R' ? 810 - globalX : globalX;
-    y = pressed.tipY || pressed.y + 27;
-  }
-  const b = spec.baseX, h = spec.baseY, w = spec.width / 2;
-  // Curved capsules attach to the palm; the fingertip meets the target key.
-  const path = `M${b-w} ${h} C${b-w} ${h-35} ${x-w} ${y+52} ${x-w} ${y+6} Q${x-w} ${y-15} ${x} ${y-15} Q${x+w} ${y-15} ${x+w} ${y+6} C${x+w} ${y+52} ${b+w} ${h-35} ${b+w} ${h} Z`;
-  return {id, x, y, path, pressed: Boolean(pressed)};
-}
-function handSvg(side, selection) {
+function handSvg(side) {
   const fingers = handSpecs.map(spec => {
-    const f = fingerGeometry(spec, side, selection);
-    return `<g data-finger="${f.id}" class="hand-finger finger-${f.id}${f.pressed ? ' is-active' : ''}"><path d="${f.path}"/><ellipse cx="${f.x}" cy="${f.y+5}" rx="8" ry="11" class="finger-nail"/></g>`;
+    const id = side + spec.suffix, length = 120 * spec.ratio;
+    const thumb = spec.suffix === '1';
+    const height = thumb ? 32 : length, width = thumb ? length : 32;
+    return `<g id="finger-${side === 'L' ? 'sol' : 'sag'}-${spec.name}" data-finger="${id}" class="hand-finger finger-${id}"><rect x="${spec.x}" y="${thumb ? 165 : 155-length}" width="${width}" height="${height}" rx="${height/2}" ry="16"/></g>`;
   }).join('');
-  return `<g class="hand" ${side === 'R' ? 'transform="translate(810 0) scale(-1 1)"' : ''}><path class="hand-palm" d="M148 280 C177 264 277 261 310 290 C330 310 324 339 333 355 C317 379 310 398 309 424 L189 424 C186 391 155 367 145 333 C140 314 137 293 148 280Z"/>${fingers}<path class="hand-crease" d="M175 324 Q232 299 298 324 M189 389 Q245 376 302 388"/></g>`;
+  return `<g class="hand" ${side === 'R' ? 'transform="translate(900 0) scale(-1 1)"' : ''}><rect class="hand-palm" x="140" y="140" width="190" height="85" rx="32"/>${fingers}</g>`;
 }
 
 export function keyboardGraphic(layout, {showHands = true, interactive = false} = {}) {
   const keys = guideKeys(layout);
-  const selection = guideSelection(layout, '');
   const keyFaces = keys.map(key => `<g class="guide-key finger-${key.fingerId}${key.home ? ' is-home' : ''}" data-key-code="${key.code}"${interactive ? ` role="button" tabindex="${key.code === 'KeyF' ? 0 : -1}" aria-label="${guideEscape(keyLabel(key))} — ${key.finger}${key.home ? ', temel sıra' : ''}"` : ''}><title>${guideEscape(keyLabel(key))} · ${key.finger}</title>${key.shape ? `<path class="key-face" d="${key.shape}"/>` : `<rect class="key-face" x="${key.x+3}" y="${key.y+3}" width="${key.width-6}" height="${key.height-6}" rx="7"/>`}${key.home ? `<path class="home-mark" d="M${key.x+23} ${key.y+45} h14"/>` : ''}</g>`).join('');
-  // Labels are painted AFTER the hands, so translucent fingers never hide letters.
+  // The keyboard and abstract hand guide are separate SVGs.
   const labels = keys.map(key => `<text class="guide-key-label${key.label ? ' special-label' : ''}" x="${key.x+key.width/2}" y="${key.y+31}">${guideEscape(keyLabel(key))}</text>`).join('');
-  return `<div class="guide-scroll"><svg class="keyboard-guide" viewBox="-12 0 924 ${showHands ? 470 : 340}" xmlns="http://www.w3.org/2000/svg" role="${interactive ? 'group' : 'img'}" aria-label="${layout.name} klavye ve parmak yerleşimi"><rect class="keyboard-frame" x="-6" y="12" width="912" height="316" rx="16"/><text class="guide-layout-label" x="28" y="56">${layout.name.endsWith('Q') ? 'Q' : 'F'}</text>${keyFaces}<g class="guide-modifiers" aria-hidden="true"><text x="42" y="296">Ctrl</text><text x="108" y="296">⊞</text><text x="181" y="296">Alt</text><text x="647" y="296">AltGr</text><text x="742" y="296">☰</text><text x="849" y="296">Ctrl</text></g><g class="hands-layer" aria-hidden="true"${showHands ? '' : ' style="display:none"'}>${handSvg('L',selection)}${handSvg('R',selection)}<text class="hand-label" x="247" y="455">SOL EL</text><text class="hand-label" x="563" y="455">SAĞ EL</text></g><g class="key-labels" aria-hidden="true">${labels}</g></svg></div>`;
+  return `<div class="guide-scroll"><svg class="keyboard-guide" viewBox="-12 0 924 340" xmlns="http://www.w3.org/2000/svg" role="${interactive ? 'group' : 'img'}" aria-label="${layout.name} klavye ve parmak yerleşimi"><rect class="keyboard-frame" x="-6" y="12" width="912" height="316" rx="16"/><text class="guide-layout-label" x="28" y="56">${layout.name.endsWith('Q') ? 'Q' : 'F'}</text>${keyFaces}<g class="guide-modifiers" aria-hidden="true"><text x="42" y="296">Ctrl</text><text x="108" y="296">⊞</text><text x="181" y="296">Alt</text><text x="647" y="296">AltGr</text><text x="742" y="296">☰</text><text x="849" y="296">Ctrl</text></g><g class="key-labels" aria-hidden="true">${labels}</g></svg></div><svg class="hands-layer hand-guide" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sol ve sağ el parmak rehberi"${showHands ? '' : ' style="display:none"'}>${handSvg('L')}${handSvg('R')}<text class="hand-label" x="240" y="250">SOL EL</text><text class="hand-label" x="660" y="250">SAĞ EL</text></svg>`;
 }
 
 export function updateKeyboardGraphic(root, layout, value = '') {
@@ -75,13 +62,8 @@ export function updateKeyboardGraphic(root, layout, value = '') {
     element.classList.toggle('is-active', selected);
     if (element.hasAttribute('tabindex')) element.setAttribute('tabindex', element.dataset.keyCode === (selection.key?.code || 'KeyF') ? '0' : '-1');
   }
-  for (const side of ['L','R']) for (const spec of handSpecs) {
-    const f = fingerGeometry(spec, side, selection), group = root.querySelector(`[data-finger="${f.id}"]`);
-    if (!group) continue;
-    group.classList.toggle('is-active', f.pressed);
-    group.querySelector('path').setAttribute('d', f.path);
-    group.querySelector('ellipse').setAttribute('cx', f.x);
-    group.querySelector('ellipse').setAttribute('cy', f.y+5);
+  for (const group of root.querySelectorAll('[data-finger]')) {
+    group.classList.toggle('is-active', [selection.key, selection.shift].some(key => key?.fingerId === group.dataset.finger));
   }
   const message = root.querySelector('[data-guide-message]');
   if (message) message.textContent = selection.message;

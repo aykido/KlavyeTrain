@@ -40,9 +40,9 @@
 .guide-key-label.special-label{font-size:15px}.key-labels,.hands-layer{pointer-events:none}.guide-layout-label{font:700 18px "Segoe UI",sans-serif;text-anchor:middle;fill:var(--muted)}
 .guide-modifiers text{font:14px "Segoe UI",sans-serif;text-anchor:middle;fill:var(--muted)}
 .hand-palm{fill:var(--muted);fill-opacity:.10;stroke:var(--muted);stroke-opacity:.45;stroke-width:2}
-.hand-finger path{fill:var(--finger);fill-opacity:.18;stroke:var(--finger);stroke-opacity:.7;stroke-width:2}
-.hand-finger.is-active path{fill-opacity:.4;stroke-opacity:1;stroke-width:3}.finger-nail{fill:var(--surface);fill-opacity:.25;stroke:var(--finger);stroke-width:1;stroke-opacity:.5}
-.hand-crease{fill:none;stroke:var(--muted);stroke-opacity:.22;stroke-width:1.6;stroke-linecap:round}
+.hand-finger{fill:var(--finger);opacity:.25;transition:opacity 160ms ease}
+.hand-finger.is-active{opacity:1}
+.hand-guide{display:block;width:100%;max-width:820px;margin:4px auto 16px}
 .hand-label{font:600 13px "Segoe UI",sans-serif;letter-spacing:2px;text-anchor:middle;fill:var(--muted)}
 .guide-message{padding:16px 20px;min-height:60px;background:var(--accent-soft);border-radius:10px;color:var(--ink);font-size:1rem}
 .finger-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}
@@ -52,5 +52,7 @@
 .guide-home-row{display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem;border-top:1px solid var(--line);padding-top:18px}.guide-reset{margin-top:18px}
 .guide-notes{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:26px}.guide-notes p{font-size:.88rem;margin-top:8px}
 .exercise-hand-toggle{justify-content:center;font-size:.85rem;margin:18px 0 4px}.exercise-active .keyboard-guide{max-width:820px}.exercise-active .guide-key{cursor:default}
-.contrast .key-face{stroke-opacity:1;stroke-width:2}.contrast .hand-finger path{stroke-opacity:1}.contrast .hand-palm{stroke-opacity:1}
+.contrast .key-face{stroke-opacity:1;stroke-width:2}.contrast .hand-finger{fill:var(--finger);opacity:.25;transition:opacity 160ms ease}.contrast .hand-palm{stroke-opacity:1}
 @media(max-width:700px){.guide-toolbar{align-items:start;flex-direction:column}.finger-legend{grid-template-columns:repeat(2,1fr)}.guide-notes{grid-template-columns:1fr}.guide-home-row{flex-direction:column;gap:6px}.guide-toolbar .checkbox{font-size:.88rem}nav{gap:2px}nav button{padding:8px;font-size:.8rem}}
+
+@media(prefers-reduced-motion:reduce){.hand-finger{transition:none}}

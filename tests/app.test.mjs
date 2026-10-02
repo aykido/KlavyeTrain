@@ -120,7 +120,7 @@ test('süre dolunca son kelime bir kez sayılır, ilerideki metin hata sayılmaz
 });
 test('ilk açılış, F/Q seçimi, hazırlayan ve sürüm bilgisi',()=>{
   const app=boot();try {
-    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.2\.1/);
+    assert.match(app.$('footer').textContent,/Aykut BOZALAN/);assert.match(app.$('#version').textContent,/v1\.2\.2/);
     app.click('[data-layout="TR_F"]');assert.equal(app.$('#layout-badge').textContent,'Türkçe F');
     assert.equal(app.dom.window.document.querySelectorAll('[data-mode]').length,10);assert.deepEqual(app.errors,[]);
   } finally{app.close();}
