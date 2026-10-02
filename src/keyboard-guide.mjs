@@ -30,21 +30,30 @@ export function guideSelection(layout, value) {
   return { key, shift, message };
 }
 
+const palmWidth = 160, palmX = 115, palmY = 152, palmHeight = .85 * palmWidth;
+const fingerGap = .03 * palmWidth, fingerWidth = (palmWidth - 3 * fingerGap) / 4;
 const handSpecs = [
-  {suffix:'5', name:'serce', x:100, ratio:.75},
-  {suffix:'4', name:'yuzuk', x:145, ratio:.92},
-  {suffix:'3', name:'orta', x:190, ratio:1},
-  {suffix:'2', name:'isaret', x:235, ratio:.9},
-  {suffix:'1', name:'bas', x:260, ratio:.7}
+  {suffix:'5', name:'serce', x:palmX, ratio:.75},
+  {suffix:'4', name:'yuzuk', x:palmX + fingerWidth + fingerGap, ratio:.92},
+  {suffix:'3', name:'orta', x:palmX + 2 * (fingerWidth + fingerGap), ratio:1},
+  {suffix:'2', name:'isaret', x:palmX + 3 * (fingerWidth + fingerGap), ratio:.9},
+  {suffix:'1', name:'bas', ratio:.7}
 ];
 function handSvg(side) {
+  const handName = side === 'L' ? 'sol' : 'sag';
+  const thumbBaseX = palmX + palmWidth - fingerWidth / 2;
+  const thumbBaseY = palmY + palmHeight - .18 * palmWidth;
   const fingers = handSpecs.map(spec => {
-    const id = side + spec.suffix, length = 120 * spec.ratio;
+    const id = side + spec.suffix;
     const thumb = spec.suffix === '1';
-    const height = length, width = 40;
-    return `<g id="finger-${side === 'L' ? 'sol' : 'sag'}-${spec.name}" data-finger="${id}" class="hand-finger finger-${id}"><rect x="${spec.x}" y="${thumb ? 115 : 145-length}" width="${width}" height="${height}" rx="${width/2}"${thumb ? ' transform="rotate(35 280 199)"' : ''}/></g>`;
+    const length = thumb ? .55 * palmWidth : .80 * palmWidth * spec.ratio;
+    // The visible finger length is above the palm; the rounded base joins inside it.
+    const height = thumb ? length : length + fingerWidth / 2;
+    const x = thumb ? thumbBaseX - fingerWidth / 2 : spec.x;
+    const y = thumb ? thumbBaseY - length : palmY - length;
+    return `<g id="finger-${handName}-${spec.name}" data-finger="${id}" class="hand-finger finger-${id}"><rect x="${x}" y="${y}" width="${fingerWidth}" height="${height}" rx="${fingerWidth/2}"${thumb ? ` transform="rotate(38 ${thumbBaseX} ${thumbBaseY})"` : ''}/></g>`;
   }).join('');
-  return `<g id="el-${side === 'L' ? 'sol' : 'sag'}" class="hand" ${side === 'R' ? 'transform="translate(800 0) scale(-1 1)"' : ''}><rect id="palm-${side === 'L' ? 'sol' : 'sag'}" class="hand-palm" x="90" y="130" width="190" height="90" rx="24"/>${fingers}</g>`;
+  return `<g id="el-${handName}" class="hand" ${side === 'R' ? 'transform="translate(800 0) scale(-1 1)"' : ''}><rect id="wrist-${handName}" class="hand-palm" x="${palmX + .15 * palmWidth}" y="${palmY + palmHeight - 8}" width="${.7 * palmWidth}" height="${.25 * palmWidth + 8}" rx="16"/><rect id="palm-${handName}" class="hand-palm" x="${palmX}" y="${palmY}" width="${palmWidth}" height="${palmHeight}" rx="24"/>${fingers}</g>`;
 }
 
 export function keyboardGraphic(layout, {showHands = true, interactive = false} = {}) {
@@ -52,7 +61,7 @@ export function keyboardGraphic(layout, {showHands = true, interactive = false} 
   const keyFaces = keys.map(key => `<g class="guide-key finger-${key.fingerId}${key.home ? ' is-home' : ''}" data-key-code="${key.code}"${interactive ? ` role="button" tabindex="${key.code === 'KeyF' ? 0 : -1}" aria-label="${guideEscape(keyLabel(key))} — ${key.finger}${key.home ? ', temel sıra' : ''}"` : ''}><title>${guideEscape(keyLabel(key))} · ${key.finger}</title>${key.shape ? `<path class="key-face" d="${key.shape}"/>` : `<rect class="key-face" x="${key.x+3}" y="${key.y+3}" width="${key.width-6}" height="${key.height-6}" rx="7"/>`}${key.home ? `<path class="home-mark" d="M${key.x+23} ${key.y+45} h14"/>` : ''}</g>`).join('');
   // The keyboard and abstract hand guide are separate SVGs.
   const labels = keys.map(key => `<text class="guide-key-label${key.label ? ' special-label' : ''}" x="${key.x+key.width/2}" y="${key.y+31}">${guideEscape(keyLabel(key))}</text>`).join('');
-  return `<div class="guide-scroll"><svg class="keyboard-guide" viewBox="-12 0 924 340" xmlns="http://www.w3.org/2000/svg" role="${interactive ? 'group' : 'img'}" aria-label="${layout.name} klavye ve parmak yerleşimi"><rect class="keyboard-frame" x="-6" y="12" width="912" height="316" rx="16"/><text class="guide-layout-label" x="28" y="56">${layout.name.endsWith('Q') ? 'Q' : 'F'}</text>${keyFaces}<g class="guide-modifiers" aria-hidden="true"><text x="42" y="296">Ctrl</text><text x="108" y="296">⊞</text><text x="181" y="296">Alt</text><text x="647" y="296">AltGr</text><text x="742" y="296">☰</text><text x="849" y="296">Ctrl</text></g><g class="key-labels" aria-hidden="true">${labels}</g></svg></div><svg id="eller" class="hands-layer hand-guide" viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sol ve sağ el parmak rehberi"${showHands ? '' : ' style="display:none"'}>${handSvg('L')}${handSvg('R')}<text class="hand-label" x="185" y="250">SOL EL</text><text class="hand-label" x="615" y="250">SAĞ EL</text></svg>`;
+  return `<div class="guide-scroll"><svg class="keyboard-guide" viewBox="-12 0 924 340" xmlns="http://www.w3.org/2000/svg" role="${interactive ? 'group' : 'img'}" aria-label="${layout.name} klavye ve parmak yerleşimi"><rect class="keyboard-frame" x="-6" y="12" width="912" height="316" rx="16"/><text class="guide-layout-label" x="28" y="56">${layout.name.endsWith('Q') ? 'Q' : 'F'}</text>${keyFaces}<g class="guide-modifiers" aria-hidden="true"><text x="42" y="296">Ctrl</text><text x="108" y="296">⊞</text><text x="181" y="296">Alt</text><text x="647" y="296">AltGr</text><text x="742" y="296">☰</text><text x="849" y="296">Ctrl</text></g><g class="key-labels" aria-hidden="true">${labels}</g></svg></div><svg id="eller" class="hands-layer hand-guide" viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sol ve sağ el parmak rehberi"${showHands ? '' : ' style="display:none"'}>${handSvg('L')}${handSvg('R')}<text class="hand-label" x="195" y="350">SOL EL</text><text class="hand-label" x="605" y="350">SAĞ EL</text></svg>`;
 }
 
 // The hand component receives finger IDs only; it knows nothing about Q/F keys.

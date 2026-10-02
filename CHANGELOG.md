@@ -1,5 +1,11 @@
 # Sürüm geçmişi
 
+## 1.2.4 — 2026-10-02
+
+- El panelinin oranları düzeltildi: kareye yakın avuç, daha uzun görünen parmaklar, avuca bağlı 38° başparmak ve kısa bilek.
+- SVG yüksekliği 360’a çıkarıldı; dar ekran ölçeklemesi korunur.
+- Renkler, parmak kimlikleri, vurgu, animasyon ve Q/F tuş eşlemesi korunur.
+
 ## 1.2.3 — 2026-10-02
 
 - El paneli ayrıntılı kapsül el spec’ine uyarlandı: 35° başparmak, el/avuç kimlikleri, 120 ms basma animasyonu ve azaltılmış hareket desteği.
